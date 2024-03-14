@@ -1,0 +1,4 @@
+﻿  UserConnectInterface.cpp
+D:\proiect_POO\POO_P\POO_P\UserConnectInterface.cpp(7,34): warning C4829: Possibly incorrect parameters to function main. Consider 'int main(Platform::Array<Platform::String^>^ argv)'
+  UserConnectInterface.obj : MSIL module encountered; incremental linking is disabled for MSIL; performing full link
+  POO_P.vcxproj -> D:\proiect_POO\POO_P\x64\Debug\POO_P.exe

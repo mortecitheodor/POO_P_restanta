@@ -1,0 +1,3 @@
+D:\proiect_POO\POO_P\POO_P\x64\Debug\POO_P.vcxproj.AssemblyReference.cache
+D:\proiect_POO\POO_P\POO_P\x64\Debug\POOP.UserConnectInterface.resources
+D:\proiect_POO\POO_P\POO_P\x64\Debug\POO_P.vcxproj.GenerateResource.cache
