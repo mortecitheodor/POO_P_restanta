@@ -1,0 +1,6 @@
+﻿  Source.cpp
+C:\Users\UNKNOWN\Downloads\Compressed\POO_P_restanta-main\POO_P_restanta-main\proiect_POO\POO_P\POO_P\Source.cpp(85,10): warning C4101: 'buffer': unreferenced local variable
+  Source.obj : MSIL module encountered; incremental linking is disabled for MSIL; performing full link
+  POO_P.vcxproj -> C:\Users\UNKNOWN\Downloads\Compressed\POO_P_restanta-main\POO_P_restanta-main\proiect_POO\POO_P\x64\Release\POO_P.exe
+  'pwsh.exe' is not recognized as an internal or external command,
+  operable program or batch file.
