@@ -4,6 +4,7 @@
 #include <msclr/marshal.h>
 #include "UserConnectInterface.h"
 #include "Register.h"
+#include "Main.h"
 
 using namespace System;
 using namespace System::Net;
@@ -11,9 +12,9 @@ using namespace System::Text;
 using namespace System::Windows::Forms;
 using namespace System::Runtime::InteropServices;
 #pragma comment(lib, "ws2_32.lib")
-#define DEFAULT_BUFLEN 512
 #define DEFAULT_PORT "27015"
 
+[STAThread]
 int main(array <String^>^ args) {
     WSADATA wsaData;
     SOCKET ConnectSocket = INVALID_SOCKET;
@@ -81,9 +82,6 @@ int main(array <String^>^ args) {
         return 1;
     }
 
-    //aici s-a conectat la server
-    // Send an initial buffer
-    char buffer[1024];
     Application::EnableVisualStyles();
     Application::SetCompatibleTextRenderingDefault(false);
     User^ user = gcnew User();
@@ -91,36 +89,37 @@ int main(array <String^>^ args) {
     while (true) {
         POOP::UserConnectInterface^ loginF = gcnew POOP::UserConnectInterface(ConnectSocket);
         loginF->ShowDialog();
-
-        if (loginF->switchToMain == 1) {
-            user = loginF->user;
-            //mainForm = gcnew MainForm(user, ConnectSocket);
-            //mainForm->ShowDialog();
-
-            //if (mainForm->switchToGame) {
-            //    // Logica pentru comutarea la aplicatie.
-            //}
+        if(loginF->exitVal == 1) {
+            closesocket(ConnectSocket);
+            WSACleanup();
+            return 0;
         }
-        else if (loginF->switchToRegister == 1) {
-            POOP::Register^ registerF = gcnew POOP::Register(ConnectSocket);
-            registerF->ShowDialog();
+        if (loginF->switchToMain) {//se logheaza
+            user = loginF->user;
+            POOP::Main^ mainForm = gcnew POOP::Main(user, ConnectSocket);
+            mainForm->ShowDialog();
 
-            if (registerF->switchToMain) {
-               /* mainForm = gcnew MainForm(registerF->user, ConnectSocket);
-                mainForm->ShowDialog();*/
+            if (mainForm->switchToLogin == 1 && mainForm->exitVal == 0) {
+                continue;
             }
-
-            if (registerF->switchToLogin) {
-                continue; // Revenim la ecranul de autentificare.
-            }
-            else {
-                user = registerF->user;
-                break; // Iesim din bucla daca utilizatorul este inregistrat cu succes.
+            else if (mainForm->exitVal == 1 && mainForm->switchToLogin == 0) {
+                closesocket(ConnectSocket);
+                WSACleanup();
+                return 0;
             }
         }
-        else {
-            user = loginF->user;
-            break; // Iesim din bucla daca utilizatorul este autentificat cu succes.
+        else if (loginF->switchToRegister) {
+            POOP::Register^ registerForm = gcnew POOP::Register(ConnectSocket);
+            registerForm->ShowDialog();
+
+            if (registerForm->switchToLogin == 1 && registerForm->exitVal == 0) {
+                continue;
+            }
+            else if (registerForm->exitVal == 1 && registerForm->switchToLogin == 0) {
+                closesocket(ConnectSocket);
+                WSACleanup();
+                return 0;
+            }
         }
     }
     

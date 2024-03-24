@@ -1,8 +1,1 @@
-﻿  Server.cpp
-C:\Users\UNKNOWN\Desktop\Server\Server\Server.cpp(46,9): warning C4101: 'bytesSent': unreferenced local variable
-C:\Users\UNKNOWN\Desktop\Server\Server\Server.cpp(146,10): warning C4101: 'recvbuf': unreferenced local variable
-C:\Users\UNKNOWN\Desktop\Server\Server\Server.cpp(145,9): warning C4101: 'iSendResult': unreferenced local variable
-  Server.obj : MSIL module encountered; incremental linking is disabled for MSIL; performing full link
-  Server.vcxproj -> C:\Users\UNKNOWN\Desktop\Server\x64\Debug\Server.exe
-  'pwsh.exe' is not recognized as an internal or external command,
-  operable program or batch file.
+﻿  Server.vcxproj -> C:\Users\UNKNOWN\Desktop\PooP\Server\x64\Debug\Server.exe

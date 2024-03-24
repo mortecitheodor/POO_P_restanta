@@ -1,3 +1,5 @@
+  POOP.EditFile.resources - Embedded, ContainedInManifestFile, 
+  POOP.Main.resources - Embedded, ContainedInManifestFile, 
   POOP.Register.resources - Embedded, ContainedInManifestFile, 
   POOP.UserConnectInterface.resources - Embedded, ContainedInManifestFile, 
 ImageRuntimeVersion: v4.0.30319
@@ -21,7 +23,6 @@ Class User: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     Int32 id : Public
     System.String name : Public
     System.String email : Public
-    System.String phone : Public
     System.String password : Public
 Class POOP.UserConnectInterface: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
   :System.Windows.Forms.Form
@@ -29,15 +30,40 @@ Class POOP.UserConnectInterface: AutoLayout, AnsiClass, Class, Public, BeforeFie
     Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
   Fields:
     UInt64 connectSocket : Public
+    Boolean exitVal : Public
     User user : Public
     Boolean switchToMain : Public
     Boolean switchToRegister : Public
 Class POOP.Register: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
   :System.Windows.Forms.Form
     Void .ctor(UInt64): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Fields:
+    UInt64 connectSocket : Public
+    User user : Public
+    Boolean switchToLogin : Public
+    Boolean exitVal : Public
+Class POOP.InputForm: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+  :System.Windows.Forms.Form
+    Void .ctor(User, UInt64): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
     Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
   Fields:
     UInt64 connectSocket : Public
-    Boolean switchToMain : Public
-    Boolean switchToLogin : Public
     User user : Public
+Class POOP.EditFile: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+  :System.Windows.Forms.Form
+    Void .ctor(User, UInt64): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Fields:
+    UInt64 connectSocket : Public
+    User user : Public
+Class POOP.Main: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+  :System.Windows.Forms.Form
+    Void .ctor(User, UInt64): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Fields:
+    UInt64 connectSocket : Public
+    User user : Public
+    Boolean switchToLogin : Public
+    Boolean exitVal : Public
+  Methods:
+    linkLabel_LinkClicked(Object, LinkLabelLinkClickedEventArgs): PrivateScope, Public, HideBySig

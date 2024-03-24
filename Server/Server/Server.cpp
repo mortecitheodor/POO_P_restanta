@@ -39,6 +39,55 @@ char recvbuf[2000] = "";
 
 int Verify(User^% user, std::string mail, std::string password);
 
+std::vector<std::string> GetUserFilesFromDatabase(int userId) {
+    std::vector<std::string> fileList;
+
+    // Initialize the connection string
+    String^ connString = "Data Source=DESKTOP-5AS8UAM\\SQLEXPRESS;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+
+    // Create a SqlConnection using the connection string
+    SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+
+    try {
+        // Open the connection
+        sqlConn->Open();
+
+        // Prepare the SQL command
+        String^ sqlQuery = "SELECT filename FROM Files WHERE user_id = @userId";
+        SqlCommand^ command = gcnew SqlCommand(sqlQuery, sqlConn);
+
+        // Add the user ID parameter to the command
+        command->Parameters->AddWithValue("@userId", userId);
+
+        // Execute the command and receive the data
+        SqlDataReader^ reader = command->ExecuteReader();
+
+        // Read each row in the result set
+        while (reader->Read()) {
+            // Get the filename from the current row
+            String^ filename = reader->GetString(0);
+
+            // Add the filename to the fileList
+            fileList.push_back(msclr::interop::marshal_as<std::string>(filename));
+        }
+
+        // Close the reader when done
+        reader->Close();
+    }
+    catch (Exception^ e) {
+        // Handle any exceptions that occur
+        Console::WriteLine("An error occurred: " + e->Message);
+    }
+    finally {
+        // Ensure the connection is closed even if an error occurs
+        if (sqlConn->State == ConnectionState::Open) {
+            sqlConn->Close();
+        }
+    }
+
+    return fileList;
+}
+
 DWORD WINAPI ProcessClient(LPVOID lpParameter)
 {
     SOCKET AcceptSocket = (SOCKET)lpParameter;
@@ -86,6 +135,39 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
             }
             else {
                 std::cout << "Data sent successfully: " << verificare << std::endl;
+            }
+            if (verificare == 1)
+            {
+                // Utilizatorul este verificat, acum obtinem lista de fisiere
+                std::vector<std::string> fileList = GetUserFilesFromDatabase(user->id);
+                Json::Value response;
+                response["operatiune"] = "lista";
+                for (const auto& fileName : fileList)
+                {
+                    response["fisiere"].append(fileName);
+                }
+
+                // Convert the JSON object to a styled string
+                std::string responseString = response.toStyledString();
+
+                // Convert the string to bytes for sending
+                array<Byte>^ responseBytes = Encoding::ASCII->GetBytes(msclr::interop::marshal_as<String^>(responseString));
+                pin_ptr<unsigned char> pinnedResponseData = &responseBytes[0];
+                int responseDataLength = responseBytes->Length;
+
+                // Send the JSON string to the server
+                int bytesSentResponse = send(AcceptSocket, reinterpret_cast<char*>(pinnedResponseData), responseDataLength, 0);
+
+                // Check if the data was sent successfully
+                if (bytesSentResponse == SOCKET_ERROR)
+                {
+                    // Handle the error
+                    Console::WriteLine("Error sending file list.");
+                }
+                else
+                {
+                    Console::WriteLine("File list sent successfully.");
+                }
             }
         }
         else if (operatiune == "register")
@@ -240,11 +322,13 @@ int Verify(User^% user, std::string mail, std::string password) {
 
         SqlDataReader^ reader = command.ExecuteReader();
 
-        if (reader->Read()) {
+        bool userFound = false;
+        while (reader->Read()) {
             String^ storedPassword = reader->GetString(3); // Assuming the password is in the fourth column
+            String^ recpass = gcnew String(password.c_str());
 
             // Compare the stored hashed password with the hashed version of the input password
-            if (storedPassword == gcnew String(password.c_str())) {
+            if (storedPassword == recpass) {
                 user->id = reader->GetInt32(0);
                 user->name = reader->GetString(1);
                 user->email = reader->GetString(2);
@@ -256,21 +340,19 @@ int Verify(User^% user, std::string mail, std::string password) {
                 Console::WriteLine("Password: " + user->password);
 
                 Console::WriteLine("Utilizator gasit in baza de date!");
-                reader->Close(); // Close the SqlDataReader
-                sqlConn.Close(); // Close the SqlConnection
-                return 1;
-            }
-            else {
-                Console::WriteLine("Email or password is incorrect!");
-                reader->Close(); // Close the SqlDataReader
-                sqlConn.Close(); // Close the SqlConnection
-                return 0;
+                userFound = true;
+                break; // Exit the loop after finding the user
             }
         }
+
+        reader->Close(); // Close the SqlDataReader
+        sqlConn.Close(); // Close the SqlConnection
+
+        if (userFound) {
+            return 1;
+        }
         else {
-            Console::WriteLine("Email not found!");
-            reader->Close(); // Close the SqlDataReader
-            sqlConn.Close(); // Close the SqlConnection
+            Console::WriteLine("Email or password is incorrect!");
             return 0;
         }
     }
