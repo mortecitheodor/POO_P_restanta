@@ -1,5 +1,6 @@
 #pragma once
 #include "InputForm.h"
+#include "ShareForm.h"
 
 namespace POOP {
 
@@ -103,7 +104,6 @@ namespace POOP {
 			this->richTextBox = (gcnew System::Windows::Forms::RichTextBox());
 			this->statusStrip->SuspendLayout();
 			this->toolStrip->SuspendLayout();
-			this->contextMenuStrip->SuspendLayout();
 			this->SuspendLayout();
 			// 
 			// statusLabel
@@ -177,6 +177,41 @@ namespace POOP {
 			this->ShareButton->Size = System::Drawing::Size(23, 20);
 			this->ShareButton->Text = L"toolStripButton1";
 			this->ShareButton->ToolTipText = L"Share";
+			this->ShareButton->Click += gcnew System::EventHandler(this, &EditFile::ShareButton_Click);
+			// 
+			// ctxSelectAll
+			// 
+			this->ctxSelectAll->Name = L"ctxSelectAll";
+			this->ctxSelectAll->Size = System::Drawing::Size(32, 19);
+			// 
+			// toolStripSeparator8
+			// 
+			this->toolStripSeparator8->Name = L"toolStripSeparator8";
+			this->toolStripSeparator8->Size = System::Drawing::Size(6, 6);
+			// 
+			// ctxPaste
+			// 
+			this->ctxPaste->Name = L"ctxPaste";
+			this->ctxPaste->Size = System::Drawing::Size(32, 19);
+			// 
+			// ctxCopy
+			// 
+			this->ctxCopy->Name = L"ctxCopy";
+			this->ctxCopy->Size = System::Drawing::Size(32, 19);
+			// 
+			// ctxCut
+			// 
+			this->ctxCut->Name = L"ctxCut";
+			this->ctxCut->Size = System::Drawing::Size(32, 19);
+			// 
+			// contextMenuStrip
+			// 
+			this->contextMenuStrip->Name = L"contextMenuStrip";
+			// 
+			// ctxDelete
+			// 
+			this->ctxDelete->Name = L"ctxDelete";
+			this->ctxDelete->Size = System::Drawing::Size(32, 19);
 			// 
 			// richTextBox
 			// 
@@ -283,5 +318,35 @@ namespace POOP {
 			toggleFontView();
 		}
 #pragma endregion
+	private: System::Void ShareButton_Click(System::Object^ sender, System::EventArgs^ e) {
+		Json::Value jsonData;
+		String^ operatiune = "share";
+		jsonData["operatiune"] = msclr::interop::marshal_as<std::string>(operatiune);
+		std::string jsonString = jsonData.toStyledString();
+		array<Byte>^ dataBytes = Encoding::ASCII->GetBytes(msclr::interop::marshal_as<String^>(jsonString));
+		pin_ptr<unsigned char> pinnedData = &dataBytes[0];
+		int dataLength = dataBytes->Length;
+		send(connectSocket, reinterpret_cast<char*>(pinnedData), dataLength, 0);
+
+		/*array<Byte>^ buffer = gcnew array<Byte>(1024);
+		pin_ptr<Byte> pinnedBuffer = &buffer[0];
+		int bytesRead = recv(connectSocket, reinterpret_cast<char*>(pinnedBuffer), buffer->Length, 0);
+		if (bytesRead > 0) {
+			String^ receivedData = Encoding::ASCII->GetString(buffer, 0, bytesRead);
+
+			Json::Value jsonData;
+			Json::Reader jsonReader;
+			std::string receivedDataStr = msclr::interop::marshal_as<std::string>(receivedData);
+			if (jsonReader.parse(receivedDataStr, jsonData)) {
+
+				if (jsonData["operatiune"].asString() == "listaEmail") {
+					Json::Value emailList = jsonData["emailuri"];
+
+					ShareForm^ shareForm = gcnew ShareForm();
+					shareForm->ShowDialog();
+				}
+			}
+		}*/
+	}
 };
 }

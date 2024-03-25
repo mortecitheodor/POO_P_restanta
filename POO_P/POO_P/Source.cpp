@@ -85,7 +85,6 @@ int main(array <String^>^ args) {
     Application::EnableVisualStyles();
     Application::SetCompatibleTextRenderingDefault(false);
     User^ user = gcnew User();
-
     while (true) {
         POOP::UserConnectInterface^ loginF = gcnew POOP::UserConnectInterface(ConnectSocket);
         loginF->ShowDialog();

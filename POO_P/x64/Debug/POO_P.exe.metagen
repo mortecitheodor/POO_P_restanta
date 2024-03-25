@@ -49,6 +49,9 @@ Class POOP.InputForm: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
   Fields:
     UInt64 connectSocket : Public
     User user : Public
+Class POOP.ShareForm: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+  :System.Windows.Forms.Form
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
 Class POOP.EditFile: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
   :System.Windows.Forms.Form
     Void .ctor(User, UInt64): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName

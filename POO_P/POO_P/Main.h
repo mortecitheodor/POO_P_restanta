@@ -1,6 +1,7 @@
 #pragma once
 #include "User.h"
 #include "EditFile.h"
+#include <msclr/marshal_cppstd.h>
 
 namespace POOP {
 
@@ -22,11 +23,6 @@ namespace POOP {
 		bool switchToLogin = false;
 		bool exitVal = false;
 	private: System::Windows::Forms::Panel^ linkPanel;
-	public:
-
-	public:
-
-	public:
 	private: System::Windows::Forms::Label^ UserInfo;
 	public:
 		Main(void)
@@ -140,6 +136,14 @@ namespace POOP {
 	private: void Main::signOutButton_Click(Object ^ sender, EventArgs ^ e) {
 		this->switchToLogin = 1;
 		this->Close();
+		Json::Value jsonData;
+		String^ operatiune = "logout";
+		jsonData["operatiune"] = msclr::interop::marshal_as<std::string>(operatiune);
+		std::string jsonString = jsonData.toStyledString();
+		array<Byte>^ dataBytes = Encoding::ASCII->GetBytes(msclr::interop::marshal_as<String^>(jsonString));
+		pin_ptr<unsigned char> pinnedData = &dataBytes[0];
+		int dataLength = dataBytes->Length;
+		send(connectSocket, reinterpret_cast<char*>(pinnedData), dataLength, 0);
 	}
 	protected:
 		/// <summary>

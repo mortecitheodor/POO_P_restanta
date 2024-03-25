@@ -17,9 +17,7 @@
 #include <iostream>
 #include <vector>
 
-int ConnectedClients = 0;
-
-std::vector<SOCKET> Clienti_Conectati;
+int nrClienti = 0;
 
 using namespace System::Data;
 using namespace System::Threading;
@@ -30,12 +28,16 @@ using namespace System::Net::Sockets;
 using namespace System::Windows::Forms;
 using namespace System::Data::SqlClient;
 using namespace System::Text;
+using SocketEmailPair = std::pair<SOCKET, std::string>;
+
+std::vector<SocketEmailPair> Clienti_Conectati;
 
 #pragma comment (lib, "Ws2_32.lib")
 
 #define DEFAULT_BUFLEN 512
 #define DEFAULT_PORT "27015"
 char recvbuf[2000] = "";
+std::vector<std::string> emailList;
 
 int Verify(User^% user, std::string mail, std::string password);
 
@@ -88,6 +90,17 @@ std::vector<std::string> GetUserFilesFromDatabase(int userId) {
     return fileList;
 }
 
+void ObtineListaMail(std::string email) {
+    for (const auto& pair : Clienti_Conectati) {
+        if (pair.second != email) {
+            emailList.push_back(pair.second);
+        }
+    }
+    for (const auto& emailAddress : emailList) {
+        std::cout << "Email: " << emailAddress << std::endl;
+    }
+}
+
 DWORD WINAPI ProcessClient(LPVOID lpParameter)
 {
     SOCKET AcceptSocket = (SOCKET)lpParameter;
@@ -103,14 +116,19 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
         {
             printf("recv failed with error: %d\n", WSAGetLastError());
             Clienti_Conectati.pop_back();
-            //WSACleanup();
+            WSACleanup();
             return 0;
+        }
+        else if (bytesReceived == 0)
+        {
+            // Clientul a inchis conexiunea
+            printf("Client disconnected\n");
+            break;
         }
         array<Byte>^ byteData = gcnew array<Byte>(bytesReceived);
         Marshal::Copy(IntPtr((void*)recvbuf), byteData, 0, bytesReceived);
         String^ receivedData = Encoding::ASCII->GetString(byteData);
         Console::WriteLine("Received Data: " + receivedData);
-
 
         Json::Value jsonData;
         Json::Reader jsonReader;
@@ -138,6 +156,25 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
             }
             if (verificare == 1)
             {
+                Clienti_Conectati.emplace_back(AcceptSocket, email);
+                //informatii despre socket
+                char ipAddress[INET_ADDRSTRLEN];
+                sockaddr_in socketAddress;
+                int addressLength = sizeof(socketAddress);
+
+                //adresa IP si port
+                if (getpeername(AcceptSocket, (sockaddr*)&socketAddress, &addressLength) == 0) {
+                    inet_ntop(AF_INET, &(socketAddress.sin_addr), ipAddress, INET_ADDRSTRLEN);
+                    unsigned short port = ntohs(socketAddress.sin_port);
+
+                    //informatiile in consola
+                    std::cout << "Adresa IP: " << ipAddress << std::endl;
+                    std::cout << "Portul: " << port << std::endl;
+                }
+                else {
+                    std::cerr << "Eroare la obtinerea informatiilor despre socket." << std::endl;
+                }
+
                 // Utilizatorul este verificat, acum obtinem lista de fisiere
                 std::vector<std::string> fileList = GetUserFilesFromDatabase(user->id);
                 Json::Value response;
@@ -164,9 +201,49 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
                     // Handle the error
                     Console::WriteLine("Error sending file list.");
                 }
-                else
-                {
+                else {
                     Console::WriteLine("File list sent successfully.");
+                }
+                // load in form
+                //bytesReceived = recv(AcceptSocket, recvbuf, DEFAULT_BUFLEN, 0);
+                if (operatiune == "logout") {
+                    auto it = std::find_if(Clienti_Conectati.begin(), Clienti_Conectati.end(),
+                        [AcceptSocket](const SocketEmailPair& pair) {
+                            return pair.first == AcceptSocket;
+                        });
+                    if (it != Clienti_Conectati.end()) {
+                        Clienti_Conectati.erase(it);
+                    }
+                    verificare = 0;
+                    continue;
+                }
+                if (operatiune == "share") {
+                    ObtineListaMail(email);
+                    Json::Value response;
+                    response["operatiune"] = "listaEmail";
+                    for (const auto& email : emailList)
+                    {
+                        response["emailuri"].append(email);
+                    }
+
+                    // Converteste obiectul JSON intr-un string formatat
+                    std::string responseString = response.toStyledString();
+
+                    // Converteste string-ul in bytes pentru a fi trimis
+                    array<Byte>^ responseBytes = Encoding::ASCII->GetBytes(msclr::interop::marshal_as<String^>(responseString));
+                    pin_ptr<unsigned char> pinnedResponseData = &responseBytes[0];
+                    int responseDataLength = responseBytes->Length;
+
+                    // Trimite string-ul JSON catre clientul care a initiat share-ul
+                    int bytesSentResponse = send(AcceptSocket, reinterpret_cast<char*>(pinnedResponseData), responseDataLength, 0);
+                    if (bytesSentResponse == SOCKET_ERROR)
+                    {
+                        Console::WriteLine("Eroare la trimiterea listei de adrese de email.");
+                    }
+                    else
+                    {
+                        Console::WriteLine("Lista de adrese de email a fost trimisă cu succes.");
+                    }
                 }
             }
         }
@@ -207,7 +284,13 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
         }  
     } while (1);
         
-    printf("Client disconnected\n");
+    auto it = std::find_if(Clienti_Conectati.begin(), Clienti_Conectati.end(),
+        [AcceptSocket](const SocketEmailPair& pair) {
+            return pair.first == AcceptSocket;
+        });
+    if (it != Clienti_Conectati.end()) {
+        Clienti_Conectati.erase(it);
+    }
 
     closesocket(AcceptSocket);
     return 0;
@@ -260,7 +343,7 @@ int __cdecl main(void)
 
     listen(ListenSocket, SOMAXCONN);
     // Accept a client socket
-    for (ConnectedClients = 1; 1; ConnectedClients++)
+    for (nrClienti = 1; 1; nrClienti++)
     {
         AcceptSocket = SOCKET_ERROR;
 
@@ -268,27 +351,8 @@ int __cdecl main(void)
         {
             //ast conexiuni pana gaseste una valida
             AcceptSocket = accept(ListenSocket, NULL, NULL);
-            Clienti_Conectati.push_back(AcceptSocket);
         }
-        printf("Client %d Connected.\n", ConnectedClients);
-
-        //informatii despre socket
-        char ipAddress[INET_ADDRSTRLEN];
-        sockaddr_in socketAddress;
-        int addressLength = sizeof(socketAddress);
-
-        //adresa IP si port
-        if (getpeername(AcceptSocket, (sockaddr*)&socketAddress, &addressLength) == 0) {
-            inet_ntop(AF_INET, &(socketAddress.sin_addr), ipAddress, INET_ADDRSTRLEN);
-            unsigned short port = ntohs(socketAddress.sin_port);
-
-            //informatiile in consola
-            std::cout << "Adresa IP: " << ipAddress << std::endl;
-            std::cout << "Portul: " << port << std::endl;
-        }
-        else {
-            std::cerr << "Eroare la obtinerea informatiilor despre socket." << std::endl;
-        }
+        printf("Client Connected.\n");
 
         DWORD dwThreadId;
         CreateThread(NULL, 0, ProcessClient, (LPVOID)AcceptSocket, 0, &dwThreadId);
