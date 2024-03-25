@@ -1,1 +1,8 @@
-﻿  POO_P.vcxproj -> C:\Users\UNKNOWN\Desktop\PooP\POO_P\x64\Debug\POO_P.exe
+﻿  Source.cpp
+C:\Users\UNKNOWN\Desktop\PooP\POO_P\POO_P\EditFile.h(349,24): warning C4018: '<': signed/unsigned mismatch
+  (compiling source file 'Source.cpp')
+  
+  Source.obj : MSIL module encountered; incremental linking is disabled for MSIL; performing full link
+  POO_P.vcxproj -> C:\Users\UNKNOWN\Desktop\PooP\POO_P\x64\Debug\POO_P.exe
+  'pwsh.exe' is not recognized as an internal or external command,
+  operable program or batch file.

@@ -13,3 +13,4 @@ C:\Users\UNKNOWN\Desktop\PooP\POO_P\POO_P\x64\Debug\POOP.Register.resources
 C:\Users\UNKNOWN\Desktop\PooP\POO_P\POO_P\x64\Debug\POOP.UserConnectInterface.resources
 C:\Users\UNKNOWN\Desktop\PooP\POO_P\POO_P\x64\Debug\POO_P.vcxproj.GenerateResource.cache
 C:\Users\UNKNOWN\Desktop\PooP\POO_P\POO_P\x64\Debug\POOP.EditFile.resources
+C:\Users\UNKNOWN\Desktop\PooP\POO_P\POO_P\x64\Debug\POO_P.vcxproj.Up2Date

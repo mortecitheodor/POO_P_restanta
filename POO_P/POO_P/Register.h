@@ -327,6 +327,9 @@ namespace POOP {
 						this->switchToLogin = true;
 						this->Close();
 					}
+					else if (receivedValue == 0) {
+						MessageBox::Show("Adresa de email exista deja în baza de date!", "Eroare", MessageBoxButtons::OK, MessageBoxIcon::Error);
+					}
 				}
 				else if (bytesReceived == 0)
 				{

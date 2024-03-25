@@ -96,9 +96,6 @@ void ObtineListaMail(std::string email) {
             emailList.push_back(pair.second);
         }
     }
-    for (const auto& emailAddress : emailList) {
-        std::cout << "Email: " << emailAddress << std::endl;
-    }
 }
 
 DWORD WINAPI ProcessClient(LPVOID lpParameter)
@@ -107,7 +104,7 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
     // Send and receive data.
     int bytesSent;
     int bytesRecv = SOCKET_ERROR;
-   
+    int verificare = 0;
     do {
         // Receive a message from the client
         ZeroMemory(recvbuf, sizeof(recvbuf));//seteaza un bloc de memorie pe 0
@@ -138,15 +135,18 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
             return 0;
         }
         std::string operatiune = jsonData["operatiune"].asString();
+        std::cout<<operatiune;
+        std::string email;
+        std::string password;
         if (operatiune == "login")
         {
-            std::string email = jsonData["mail"].asString();
-            std::string password = jsonData["password"].asString();
+            email = jsonData["mail"].asString();
+            password = jsonData["password"].asString();
             //verificare cont in baza de date
             std::cout << "pass: " << password << std::endl;
             std::cout << "mail: " << email << std::endl;
             User^ user = gcnew User;
-            int verificare = Verify(user, email, password);
+            verificare = Verify(user, email, password);
             printf("verify=%d\n", verificare);
             if (send(AcceptSocket, reinterpret_cast<char*>(&verificare), sizeof(verificare), 0) == SOCKET_ERROR) {
                 std::cerr << "Eroare la conexiunea cu baza de date!" << std::endl;
@@ -206,45 +206,6 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
                 }
                 // load in form
                 //bytesReceived = recv(AcceptSocket, recvbuf, DEFAULT_BUFLEN, 0);
-                if (operatiune == "logout") {
-                    auto it = std::find_if(Clienti_Conectati.begin(), Clienti_Conectati.end(),
-                        [AcceptSocket](const SocketEmailPair& pair) {
-                            return pair.first == AcceptSocket;
-                        });
-                    if (it != Clienti_Conectati.end()) {
-                        Clienti_Conectati.erase(it);
-                    }
-                    verificare = 0;
-                    continue;
-                }
-                if (operatiune == "share") {
-                    ObtineListaMail(email);
-                    Json::Value response;
-                    response["operatiune"] = "listaEmail";
-                    for (const auto& email : emailList)
-                    {
-                        response["emailuri"].append(email);
-                    }
-
-                    // Converteste obiectul JSON intr-un string formatat
-                    std::string responseString = response.toStyledString();
-
-                    // Converteste string-ul in bytes pentru a fi trimis
-                    array<Byte>^ responseBytes = Encoding::ASCII->GetBytes(msclr::interop::marshal_as<String^>(responseString));
-                    pin_ptr<unsigned char> pinnedResponseData = &responseBytes[0];
-                    int responseDataLength = responseBytes->Length;
-
-                    // Trimite string-ul JSON catre clientul care a initiat share-ul
-                    int bytesSentResponse = send(AcceptSocket, reinterpret_cast<char*>(pinnedResponseData), responseDataLength, 0);
-                    if (bytesSentResponse == SOCKET_ERROR)
-                    {
-                        Console::WriteLine("Eroare la trimiterea listei de adrese de email.");
-                    }
-                    else
-                    {
-                        Console::WriteLine("Lista de adrese de email a fost trimisă cu succes.");
-                    }
-                }
             }
         }
         else if (operatiune == "register")
@@ -262,26 +223,90 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
             SqlConnection sqlConn(connString);
             sqlConn.Open();
 
-            String^ sqlQuery = "INSERT INTO dbo.[user] " +
-                "(name, email, password) VALUES " +
-                "(@name, @email, @password);";
+            String^ checkEmailQuery = "SELECT COUNT(*) FROM dbo.[user] WHERE email = @email";
+            SqlCommand checkEmailCommand(checkEmailQuery, % sqlConn);
+            checkEmailCommand.Parameters->AddWithValue("@email", mail);
 
-            SqlCommand command(sqlQuery, % sqlConn);
-            command.Parameters->AddWithValue("@name", nume);
-            command.Parameters->AddWithValue("@email", mail);
-            command.Parameters->AddWithValue("@password", parola); // Pass the hashed password
+            int emailCount = (int)checkEmailCommand.ExecuteScalar();
 
-            command.ExecuteNonQuery();
-            int inregistrare = 1;
-            if (send(AcceptSocket, reinterpret_cast<char*>(&inregistrare), sizeof(inregistrare), 0) == SOCKET_ERROR) {
+            int inregistrare;
+
+            if (emailCount > 0)
+            {
+                // Adresa de email există deja în baza de date
+                inregistrare = 0;
+            }
+            else
+            {
+                // Adresa de email nu există, se poate adăuga noul utilizator
+                String^ sqlQuery = "INSERT INTO dbo.[user] " +
+                    "(name, email, password) VALUES " +
+                    "(@name, @email, @password);";
+
+                SqlCommand command(sqlQuery, % sqlConn);
+                command.Parameters->AddWithValue("@name", nume);
+                command.Parameters->AddWithValue("@email", mail);
+                command.Parameters->AddWithValue("@password", parola);
+
+                command.ExecuteNonQuery();
+                inregistrare = 1;
+            }
+
+            if (send(AcceptSocket, reinterpret_cast<char*>(&inregistrare), sizeof(inregistrare), 0) == SOCKET_ERROR)
+            {
                 std::cerr << "Failed to send data" << std::endl;
             }
-            else {
-                std::cout << "Register successful!\n Data sent successfully: " << inregistrare << std::endl;
+            else
+            {
+                if (inregistrare == 1)
+                {
+                    std::cout << "Register successful!\n Data sent successfully: " << inregistrare << std::endl;
+                }
+                else
+                {
+                    std::cout << "Email already exists. Registration failed.\n Data sent successfully: " << inregistrare << std::endl;
+                }
+            }
+        }else if (operatiune == "logout") {
+            auto it = std::find_if(Clienti_Conectati.begin(), Clienti_Conectati.end(),
+                [AcceptSocket](const SocketEmailPair& pair) {
+                    return pair.first == AcceptSocket;
+                });
+            if (it != Clienti_Conectati.end()) {
+                Clienti_Conectati.erase(it);
+            }
+            verificare = 0;
+            continue;
+        } else if (operatiune == "share") {
+            emailList.clear();
+            ObtineListaMail(email);
+            Json::Value response;
+            response["operatiune"] = "listaEmail";
+            for (const auto& email : emailList)
+            {
+                response["emailuri"].append(email);
             }
 
+            // Converteste obiectul JSON intr-un string formatat
+            std::string responseString = response.toStyledString();
 
-        }  
+            // Converteste string-ul in bytes pentru a fi trimis
+            array<Byte>^ responseBytes = Encoding::ASCII->GetBytes(msclr::interop::marshal_as<String^>(responseString));
+            pin_ptr<unsigned char> pinnedResponseData = &responseBytes[0];
+            int responseDataLength = responseBytes->Length;
+
+            // Trimite string-ul JSON catre clientul care a initiat share-ul
+            int bytesSentResponse = send(AcceptSocket, reinterpret_cast<char*>(pinnedResponseData), responseDataLength, 0);
+            if (bytesSentResponse == SOCKET_ERROR)
+            {
+                Console::WriteLine("Eroare la trimiterea listei de adrese de email.");
+            }
+            else
+            {
+                Console::WriteLine("Lista de adrese de email a fost trimisă cu succes.");
+            }
+        }
+
     } while (1);
         
     auto it = std::find_if(Clienti_Conectati.begin(), Clienti_Conectati.end(),

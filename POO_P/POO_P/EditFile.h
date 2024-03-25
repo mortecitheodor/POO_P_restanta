@@ -1,6 +1,8 @@
 #pragma once
 #include "InputForm.h"
 #include "ShareForm.h"
+#include <cliext/list>
+
 
 namespace POOP {
 
@@ -10,7 +12,7 @@ namespace POOP {
 	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
-
+	using namespace System::Collections::Generic;
 	/// <summary>
 	/// Summary for EditFile
 	/// </summary>
@@ -328,7 +330,7 @@ namespace POOP {
 		int dataLength = dataBytes->Length;
 		send(connectSocket, reinterpret_cast<char*>(pinnedData), dataLength, 0);
 
-		/*array<Byte>^ buffer = gcnew array<Byte>(1024);
+		array<Byte>^ buffer = gcnew array<Byte>(1024);
 		pin_ptr<Byte> pinnedBuffer = &buffer[0];
 		int bytesRead = recv(connectSocket, reinterpret_cast<char*>(pinnedBuffer), buffer->Length, 0);
 		if (bytesRead > 0) {
@@ -342,11 +344,21 @@ namespace POOP {
 				if (jsonData["operatiune"].asString() == "listaEmail") {
 					Json::Value emailList = jsonData["emailuri"];
 
+					List<String^>^ emailStringList = gcnew List<String^>();
+
+					for (int i = 0; i < emailList.size(); i++) {
+						String^ email = msclr::interop::marshal_as<String^>(emailList[i].asString());
+						emailStringList->Add(email);
+					}
+					Console::WriteLine("Lista de email-uri primita:");
+					for each (String ^ email in emailStringList) {
+						Console::WriteLine(email);
+					}
 					ShareForm^ shareForm = gcnew ShareForm();
 					shareForm->ShowDialog();
 				}
 			}
-		}*/
+		}
 	}
 };
 }
