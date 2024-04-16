@@ -157,6 +157,9 @@
     <EmbeddedResource Include="Register.resx">
       <DependentUpon>Register.h</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ShareForm.resx">
+      <DependentUpon>ShareForm.h</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UserConnectInterface.resx">
       <DependentUpon>UserConnectInterface.h</DependentUpon>
     </EmbeddedResource>

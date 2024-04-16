@@ -1,6 +1,7 @@
   POOP.EditFile.resources - Embedded, ContainedInManifestFile, 
   POOP.Main.resources - Embedded, ContainedInManifestFile, 
   POOP.Register.resources - Embedded, ContainedInManifestFile, 
+  POOP.ShareForm.resources - Embedded, ContainedInManifestFile, 
   POOP.UserConnectInterface.resources - Embedded, ContainedInManifestFile, 
 ImageRuntimeVersion: v4.0.30319
 Assembly POO_P, Version=0.0.*, Culture=Invariant Language (Invariant Country): 
@@ -53,7 +54,11 @@ Class POOP.InputForm: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     User user : Public
 Class POOP.ShareForm: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
   :System.Windows.Forms.Form
+    Void .ctor(User, UInt64): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
     Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Fields:
+    User user : Public
+    UInt64 connectSocket : Public
 Class POOP.EditFile: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
   :System.Windows.Forms.Form
     Void .ctor(User, UInt64): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName

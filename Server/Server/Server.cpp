@@ -37,7 +37,6 @@ std::vector<SocketEmailPair> Clienti_Conectati;
 #define DEFAULT_BUFLEN 512
 #define DEFAULT_PORT "27015"
 char recvbuf[2000] = "";
-std::vector<std::string> emailList;
 
 int Verify(User^% user, std::string mail, std::string password);
 
@@ -88,14 +87,6 @@ std::vector<std::string> GetUserFilesFromDatabase(int userId) {
     }
 
     return fileList;
-}
-
-void ObtineListaMail(std::string email) {
-    for (const auto& pair : Clienti_Conectati) {
-        if (pair.second != email) {
-            emailList.push_back(pair.second);
-        }
-    }
 }
 
 DWORD WINAPI ProcessClient(LPVOID lpParameter)
@@ -233,12 +224,12 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
 
             if (emailCount > 0)
             {
-                // Adresa de email există deja în baza de date
+                // Adresa de email exista deja în baza de date
                 inregistrare = 0;
             }
             else
             {
-                // Adresa de email nu există, se poate adăuga noul utilizator
+                // Adresa de email nu exista, se poate adauga noul utilizator
                 String^ sqlQuery = "INSERT INTO dbo.[user] " +
                     "(name, email, password) VALUES " +
                     "(@name, @email, @password);";
@@ -267,7 +258,8 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
                     std::cout << "Email already exists. Registration failed.\n Data sent successfully: " << inregistrare << std::endl;
                 }
             }
-        }else if (operatiune == "logout") {
+        }
+        else if (operatiune == "logout") {
             auto it = std::find_if(Clienti_Conectati.begin(), Clienti_Conectati.end(),
                 [AcceptSocket](const SocketEmailPair& pair) {
                     return pair.first == AcceptSocket;
@@ -277,34 +269,31 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
             }
             verificare = 0;
             continue;
-        } else if (operatiune == "share") {
-            emailList.clear();
-            ObtineListaMail(email);
-            Json::Value response;
-            response["operatiune"] = "listaEmail";
-            for (const auto& email : emailList)
-            {
-                response["emailuri"].append(email);
-            }
+        } 
+        else if (operatiune == "share") {
+            email = jsonData["email"].asString();
+            std::cout << std::endl;
+            std::cout << "Email pentru partajare: " << email << std::endl;
 
-            // Converteste obiectul JSON intr-un string formatat
+            String^ connString = "Data Source=DESKTOP-5AS8UAM\\SQLEXPRESS;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+            SqlConnection sqlConn(gcnew String(connString));
+            sqlConn.Open();
+            String^ query = "SELECT COUNT(*) FROM dbo.[user] WHERE email = @mail";
+            SqlCommand^ command = gcnew SqlCommand(query, % sqlConn);
+            command->Parameters->AddWithValue("@mail", gcnew String(email.c_str()));
+
+            int userExists = (int)command->ExecuteScalar();
+            sqlConn.Close();
+
+            Json::Value response;
+            response["shareback"] = userExists > 0 ? 1 : 0;
+            std::cout << userExists;
             std::string responseString = response.toStyledString();
 
-            // Converteste string-ul in bytes pentru a fi trimis
             array<Byte>^ responseBytes = Encoding::ASCII->GetBytes(msclr::interop::marshal_as<String^>(responseString));
-            pin_ptr<unsigned char> pinnedResponseData = &responseBytes[0];
-            int responseDataLength = responseBytes->Length;
-
-            // Trimite string-ul JSON catre clientul care a initiat share-ul
-            int bytesSentResponse = send(AcceptSocket, reinterpret_cast<char*>(pinnedResponseData), responseDataLength, 0);
-            if (bytesSentResponse == SOCKET_ERROR)
-            {
-                Console::WriteLine("Eroare la trimiterea listei de adrese de email.");
-            }
-            else
-            {
-                Console::WriteLine("Lista de adrese de email a fost trimisă cu succes.");
-            }
+            pin_ptr<Byte> pinnedData = &responseBytes[0];
+            send(AcceptSocket, reinterpret_cast<char*>(pinnedData), responseBytes->Length, 0);
+            
         }
 
     } while (1);

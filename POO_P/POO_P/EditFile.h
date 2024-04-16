@@ -235,6 +235,7 @@ namespace POOP {
 			// 
 			// EditFile
 			// 
+			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(784, 561);
@@ -278,29 +279,28 @@ namespace POOP {
 			}
 			statusLabel->Text = status->ToString();
 		}
-		private: void toggleFontView()
+		private: void toggleFontView()//starea butoanelor
 		{
 			if (richTextBox->SelectionFont != nullptr)
 			{
 				cmdBold->Checked = richTextBox->SelectionFont->Bold;
-
 				cmdItalic->Checked = richTextBox->SelectionFont->Italic;
 			}
 		}
 		private: System::Void cmdBold_Click(System::Object^ sender, System::EventArgs^ e)
 		{
-			System::Drawing::FontStyle newStyle = richTextBox->SelectionFont->Style;
+			System::Drawing::FontStyle newStyle = richTextBox->SelectionFont->Style;//obtin font-ul
 			int intStyle = static_cast<int>(newStyle);
-			if (richTextBox->SelectionFont->Bold)
+			if (richTextBox->SelectionFont->Bold)//daca e bold se dezactiveaza
 			{
 				intStyle &= ~static_cast<int>(System::Drawing::FontStyle::Bold);
 			}
-			else
+			else//daca nu este bold se activeaza
 			{
 				intStyle |= static_cast<int>(System::Drawing::FontStyle::Bold);
 			}
 			newStyle = static_cast<System::Drawing::FontStyle>(intStyle);
-			richTextBox->SelectionFont = gcnew System::Drawing::Font(richTextBox->SelectionFont, newStyle);
+			richTextBox->SelectionFont = gcnew System::Drawing::Font(richTextBox->SelectionFont, newStyle);//se seteaza pe text noul font
 			toggleFontView();
 		}
 		private: System::Void cmdItalic_Click(System::Object^ sender, System::EventArgs^ e)
@@ -321,44 +321,8 @@ namespace POOP {
 		}
 #pragma endregion
 	private: System::Void ShareButton_Click(System::Object^ sender, System::EventArgs^ e) {
-		Json::Value jsonData;
-		String^ operatiune = "share";
-		jsonData["operatiune"] = msclr::interop::marshal_as<std::string>(operatiune);
-		std::string jsonString = jsonData.toStyledString();
-		array<Byte>^ dataBytes = Encoding::ASCII->GetBytes(msclr::interop::marshal_as<String^>(jsonString));
-		pin_ptr<unsigned char> pinnedData = &dataBytes[0];
-		int dataLength = dataBytes->Length;
-		send(connectSocket, reinterpret_cast<char*>(pinnedData), dataLength, 0);
-
-		array<Byte>^ buffer = gcnew array<Byte>(1024);
-		pin_ptr<Byte> pinnedBuffer = &buffer[0];
-		int bytesRead = recv(connectSocket, reinterpret_cast<char*>(pinnedBuffer), buffer->Length, 0);
-		if (bytesRead > 0) {
-			String^ receivedData = Encoding::ASCII->GetString(buffer, 0, bytesRead);
-
-			Json::Value jsonData;
-			Json::Reader jsonReader;
-			std::string receivedDataStr = msclr::interop::marshal_as<std::string>(receivedData);
-			if (jsonReader.parse(receivedDataStr, jsonData)) {
-
-				if (jsonData["operatiune"].asString() == "listaEmail") {
-					Json::Value emailList = jsonData["emailuri"];
-
-					List<String^>^ emailStringList = gcnew List<String^>();
-
-					for (int i = 0; i < emailList.size(); i++) {
-						String^ email = msclr::interop::marshal_as<String^>(emailList[i].asString());
-						emailStringList->Add(email);
-					}
-					Console::WriteLine("Lista de email-uri primita:");
-					for each (String ^ email in emailStringList) {
-						Console::WriteLine(email);
-					}
-					ShareForm^ shareForm = gcnew ShareForm();
-					shareForm->ShowDialog();
-				}
-			}
-		}
+		ShareForm^ shareForm = gcnew ShareForm(user, connectSocket);
+		shareForm->ShowDialog();
 	}
 };
 }

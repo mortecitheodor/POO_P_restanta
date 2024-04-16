@@ -1,9 +1,1 @@
-﻿  Server.cpp
-C:\Users\UNKNOWN\Desktop\PooP\Server\Server\Server.cpp(306,36): warning C4566: character represented by universal-character-name '\u0103' cannot be represented in the current code page (1252)
-C:\Users\UNKNOWN\Desktop\PooP\Server\Server\Server.cpp(105,9): warning C4101: 'bytesSent': unreferenced local variable
-C:\Users\UNKNOWN\Desktop\PooP\Server\Server\Server.cpp(336,10): warning C4101: 'recvbuf': unreferenced local variable
-C:\Users\UNKNOWN\Desktop\PooP\Server\Server\Server.cpp(335,9): warning C4101: 'iSendResult': unreferenced local variable
-  Server.obj : MSIL module encountered; incremental linking is disabled for MSIL; performing full link
-  Server.vcxproj -> C:\Users\UNKNOWN\Desktop\PooP\Server\x64\Debug\Server.exe
-  'pwsh.exe' is not recognized as an internal or external command,
-  operable program or batch file.
+﻿  Server.vcxproj -> C:\Users\UNKNOWN\Desktop\PooP\Server\x64\Debug\Server.exe

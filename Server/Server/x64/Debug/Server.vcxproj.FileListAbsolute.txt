@@ -3,4 +3,3 @@ C:\Users\Unknown\Desktop\Academia_Tehnica_Militara\POOp\jocDame\JocTable\3_Solut
 C:\Users\Unknown\Desktop\Server\Server\x64\Debug\Server.vcxproj.AssemblyReference.cache
 C:\Users\UNKNOWN\Desktop\Server\Server\x64\Debug\Server.vcxproj.Up2Date
 C:\Users\UNKNOWN\Desktop\PooP\Server\Server\x64\Debug\Server.vcxproj.AssemblyReference.cache
-C:\Users\UNKNOWN\Desktop\PooP\Server\Server\x64\Debug\Server.vcxproj.Up2Date
