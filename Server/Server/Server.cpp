@@ -174,6 +174,8 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
         std::string email;
         std::string password;
         std::string file;
+        std::string owner_email;
+        std::string shared_email;
         if (operatiune == "login")
         {
             email = jsonData["mail"].asString();
@@ -421,8 +423,57 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
                 std::cout <<std::endl<< "File content sent successfully." << std::endl;
             }
 
-
         }
+        else if (operatiune == "make_share") {
+
+            file = jsonData["shared_file"].asString();
+            owner_email = jsonData["owner_email"].asString();
+            shared_email = jsonData["shared_email"].asString();
+            std::cout << std::endl << "Operatiune: " << operatiune << std::endl << "Owner's Email: " << owner_email << std::endl << "Shared file: " << file << std::endl << "Share with: " << shared_email << std::endl;
+
+            String^ connString = "Data Source=DESKTOP-OIGQPEQ;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+            SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+
+            try {
+                sqlConn->Open();
+
+                // Fetch file_id
+                String^ sqlQueryFile = "SELECT id FROM Files WHERE filename = @filename";
+                SqlCommand^ commandFile = gcnew SqlCommand(sqlQueryFile, sqlConn);
+                commandFile->Parameters->AddWithValue("@filename", gcnew String(file.c_str()));
+                int file_id = (int)commandFile->ExecuteScalar();
+
+                // Fetch owner_user_id
+                String^ sqlQueryOwner = "SELECT id FROM dbo.[users] WHERE email = @owner_email";
+                SqlCommand^ commandOwner = gcnew SqlCommand(sqlQueryOwner, sqlConn);
+                commandOwner->Parameters->AddWithValue("@owner_email", gcnew String(owner_email.c_str()));
+                int owner_user_id = (int)commandOwner->ExecuteScalar();
+
+                // Fetch shared_user_id
+                String^ sqlQueryShared = "SELECT id FROM dbo.[users] WHERE email = @shared_email";
+                SqlCommand^ commandShared = gcnew SqlCommand(sqlQueryShared, sqlConn);
+                commandShared->Parameters->AddWithValue("@shared_email", gcnew String(shared_email.c_str()));
+                int shared_user_id = (int)commandShared->ExecuteScalar();
+
+                // Insert into FileShare table
+                String^ sqlInsert = "INSERT INTO FileShare (file_id, owner_user_id, shared_user_id) VALUES (@file_id, @owner_user_id, @shared_user_id)";
+                SqlCommand^ commandInsert = gcnew SqlCommand(sqlInsert, sqlConn);
+                commandInsert->Parameters->AddWithValue("@file_id", file_id);
+                commandInsert->Parameters->AddWithValue("@owner_user_id", owner_user_id);
+                commandInsert->Parameters->AddWithValue("@shared_user_id", shared_user_id);
+                commandInsert->ExecuteNonQuery();
+
+                std::cout << "File shared successfully." << std::endl;
+            }
+            catch (Exception^ e) {
+                Console::WriteLine("An error occurred: " + e->Message);
+            }
+            finally {
+                if (sqlConn->State == ConnectionState::Open) {
+                    sqlConn->Close();
+                }
+            }
+            }
 
     } while (1);
         
