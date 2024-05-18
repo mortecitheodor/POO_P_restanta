@@ -1,0 +1,18 @@
+﻿  InputFile.cpp
+C:\Users\UNKNOWN\Desktop\PooP\POO_P\POO_P\InputFile.h(18,10): error C3646: 'connectSocket': unknown override specifier
+  (compiling source file 'InputFile.cpp')
+  
+C:\Users\UNKNOWN\Desktop\PooP\POO_P\POO_P\InputFile.h(18,23): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'InputFile.cpp')
+  
+C:\Users\UNKNOWN\Desktop\PooP\POO_P\POO_P\InputFile.h(27,23): error C2061: syntax error: identifier 'SOCKET'
+  (compiling source file 'InputFile.cpp')
+  
+C:\Users\UNKNOWN\Desktop\PooP\POO_P\POO_P\InputFile.h(30,4): error C2065: 'connectSocket': undeclared identifier
+  (compiling source file 'InputFile.cpp')
+  
+C:\Users\UNKNOWN\Desktop\PooP\POO_P\POO_P\InputFile.h(30,20): error C2065: 'connect': undeclared identifier
+  (compiling source file 'InputFile.cpp')
+  
+  Source.cpp
+  Generating Code...
