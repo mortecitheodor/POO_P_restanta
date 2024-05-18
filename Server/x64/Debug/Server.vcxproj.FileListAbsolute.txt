@@ -1,0 +1,6 @@
+C:\Users\Theo\Desktop\server\Server\Server\x64\Debug\Server.vcxproj.AssemblyReference.cache
+C:\Users\Theo\Desktop\server\Server\Server\x64\Debug\Server.vcxproj.SuggestedBindingRedirects.cache
+C:\Users\Theo\Desktop\server\Server\Server\x64\Debug\Server.vcxproj.CopyComplete
+C:\Users\Theo\Desktop\New folder\server\Server\Server\x64\Debug\Server.vcxproj.AssemblyReference.cache
+C:\Users\Theo\Desktop\New folder\server\Server\Server\x64\Debug\Server.vcxproj.SuggestedBindingRedirects.cache
+C:\Users\Theo\Desktop\New folder\server\Server\Server\x64\Debug\Server.vcxproj.CopyComplete

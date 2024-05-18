@@ -1,0 +1,6 @@
+C:\Users\Unknown\Desktop\Academia_Tehnica_Militara\POOp\jocDame\JocTable\3_Solution\Server\Server\x64\Debug\Server.vcxproj.AssemblyReference.cache
+C:\Users\Unknown\Desktop\Academia_Tehnica_Militara\POOp\jocDame\JocTable\3_Solution\Server\Server\x64\Debug\Server.vcxproj.SuggestedBindingRedirects.cache
+C:\Users\Unknown\Desktop\Server\Server\x64\Debug\Server.vcxproj.AssemblyReference.cache
+C:\Users\UNKNOWN\Desktop\Server\Server\x64\Debug\Server.vcxproj.Up2Date
+C:\Users\UNKNOWN\Desktop\PooP\Server\Server\x64\Debug\Server.vcxproj.AssemblyReference.cache
+D:\proiect_POO\POO_P_restanta-adrian\Server\Server\x64\Debug\Server.vcxproj.AssemblyReference.cache

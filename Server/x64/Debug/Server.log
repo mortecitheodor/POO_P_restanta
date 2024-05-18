@@ -1,0 +1,9 @@
+﻿  Server.cpp
+C:\Users\Theo\Desktop\New folder\server\Server\Server\Server.cpp(202,1): warning C4102: 'fin': unreferenced label
+C:\Users\Theo\Desktop\New folder\server\Server\Server\Server.cpp(52,10): warning C4101: 'timebuf': unreferenced local variable
+C:\Users\Theo\Desktop\New folder\server\Server\Server\Server.cpp(47,9): warning C4101: 'bytesSent': unreferenced local variable
+C:\Users\Theo\Desktop\New folder\server\Server\Server\Server.cpp(221,10): warning C4101: 'recvbuf': unreferenced local variable
+C:\Users\Theo\Desktop\New folder\server\Server\Server\Server.cpp(220,9): warning C4101: 'iSendResult': unreferenced local variable
+C:\Users\Theo\Desktop\New folder\server\Server\Server\Server.cpp(346,23): warning C4101: 'e': unreferenced local variable
+  Server.obj : MSIL module encountered; incremental linking is disabled for MSIL; performing full link
+  Server.vcxproj -> C:\Users\Theo\Desktop\New folder\server\Server\x64\Debug\Server.exe
