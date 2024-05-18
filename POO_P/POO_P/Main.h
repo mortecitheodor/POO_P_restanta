@@ -38,6 +38,7 @@ namespace POOP {
 			InitializeComponent();
 			connectSocket = socket;
 			UserInfo->Text = "                                    Welcome " + user->email + " ! ";
+			this->user = user;
 			this->CenterToScreen();
 			Button^ signOutButton = gcnew Button();
 			UserInfo->Font = gcnew System::Drawing::Font("Arial", 16, FontStyle::Bold); 
@@ -181,7 +182,7 @@ namespace POOP {
 					{
 						String^ fileContent = gcnew String(receivedJson["file_content"].asString().c_str());
 						Console::WriteLine("File Content received SUCCESSFULLY from the server ");
-						POOP::EditFile^ editf = gcnew POOP::EditFile(user, connectSocket, fileName, fileContent);
+						POOP::EditFile^ editf = gcnew POOP::EditFile(this->user, connectSocket, fileName, fileContent);
 						editf->ShowDialog();
 					}
 					else
@@ -213,9 +214,8 @@ namespace POOP {
 		private: void Main::writeButton_Click(Object^ sender, EventArgs^ e)
 		{
 			// Cand se apasa "Create New File"
-			String^ fileName = nullptr; 
 
-			POOP::EditFile^ editf = gcnew POOP::EditFile(user, connectSocket, fileName);
+			POOP::EditFile^ editf = gcnew POOP::EditFile(user, connectSocket);
 			editf->ShowDialog();
 		}
 

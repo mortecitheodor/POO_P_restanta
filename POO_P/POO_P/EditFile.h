@@ -30,12 +30,12 @@ namespace POOP {
 			//TODO: Add the constructor code here
 			//
 		}
-		EditFile(User^ us, SOCKET connect, String^ fName)
+		EditFile(User^ us, SOCKET connect)
 		{
 			InitializeComponent();
 			connectSocket = connect;
 			user = us;
-			file_Name = fName;
+
 		}
 
 		EditFile(User^ us, SOCKET connect, String^ fName,String^ content)
@@ -333,8 +333,13 @@ namespace POOP {
 		}
 #pragma endregion
 	private: System::Void ShareButton_Click(System::Object^ sender, System::EventArgs^ e) {
-		ShareForm^ shareForm = gcnew ShareForm(user, connectSocket);
-		shareForm->ShowDialog();
+		if (this->file_Name != "New File") {
+			ShareForm^ shareForm = gcnew ShareForm(this->user, connectSocket, this->file_Name);
+			shareForm->ShowDialog();
+		}
+		else {
+			MessageBox::Show("Eroare! Nu puteti distribui un fisier nesalvat!");
+		}
 	}
 };
 }

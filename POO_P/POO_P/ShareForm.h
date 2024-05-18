@@ -17,6 +17,7 @@ namespace POOP {
 	public:
 		User^ user;
 		SOCKET connectSocket;
+		String^ file;
 		ShareForm(void)
 		{
 			InitializeComponent();
@@ -24,10 +25,11 @@ namespace POOP {
 			//TODO: Add the constructor code here
 			//
 		}
-		ShareForm(User^ us, SOCKET connect) {
+		ShareForm(User^ us, SOCKET connect,String^ file_name) {
 			InitializeComponent();
 			connectSocket = connect;
 			user = us;
+			this->file = file_name;
 		}
 	private: System::Windows::Forms::Button^ button1;
 	private: System::Windows::Forms::TextBox^ textBox1;
@@ -110,7 +112,7 @@ namespace POOP {
 		void sendButton_Click(Object^ sender, EventArgs^ e) {
 			String^ email = textBox1->Text;
 			Json::Value jsonData;
-			Console::WriteLine("Email: " + email);
+			Console::WriteLine("Email-ul user-ului cu care se face share al fisierului: " + email);
 			jsonData["operatiune"] = "share";
 			jsonData["email"] = msclr::interop::marshal_as<std::string>(email);
 			std::string jsonString = jsonData.toStyledString();
@@ -126,12 +128,34 @@ namespace POOP {
 				Json::Reader reader;
 				if (reader.parse(buffer, response)) {
 					int shareback = response.get("shareback", 0).asInt();
-					if (shareback == 1) {
-						MessageBox::Show("Fisier trimis cu succes catre " + email);
+					if (shareback == 1 && email!=this->user->email) {
+						//de trimis JSON la server cu email user, la ce user si filename
+						Console::WriteLine("Email-ul:  " + email+" este valid pentru distribuirea fisierului \""+this->file+"\"");
+
+						//se trimit datele necesare distribuirii
+						Json::Value jsonData;
+						jsonData["operatiune"] = "make_share";
+						String^ owner_email = this->user->email;
+						String^ shared_file = file;
+						jsonData["owner_email"]= msclr::interop::marshal_as<std::string>(owner_email);
+						jsonData["shared_email"]= msclr::interop::marshal_as<std::string>(email);
+						jsonData["shared_file"] = msclr::interop::marshal_as<std::string>(shared_file);
+
+						std::string jsonString = jsonData.toStyledString();
+						array<Byte>^ dataBytes = Encoding::ASCII->GetBytes(msclr::interop::marshal_as<String^>(jsonString));
+						pin_ptr<unsigned char> pinnedData = &dataBytes[0];
+						int dataLength = dataBytes->Length;
+						send(connectSocket, reinterpret_cast<char*>(pinnedData), dataLength, 0);
+						Console::WriteLine("Owner's Email: " + this->user->email);
+						Console::WriteLine("File to be shared: " + file);
+						Console::WriteLine("Shared User's Email: " + email);
 					}
-					else {
-						MessageBox::Show("Acest client nu exista.");
+					else if(email==this->user->email) {
+						MessageBox::Show("Eroare: Nu iti poti distribui singur un fisier!");
 					}
+				else {
+					MessageBox::Show("Acest client nu exista.");
+				}
 				}
 				else {
 					MessageBox::Show("Eroare la parsarea raspunsului JSON.");

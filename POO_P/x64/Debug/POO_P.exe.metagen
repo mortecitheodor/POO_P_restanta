@@ -54,15 +54,16 @@ Class POOP.InputForm: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     User user : Public
 Class POOP.ShareForm: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
   :System.Windows.Forms.Form
-    Void .ctor(User, UInt64): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+    Void .ctor(User, UInt64, System.String): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
     Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
   Fields:
     User user : Public
     UInt64 connectSocket : Public
+    System.String file : Public
 Class POOP.EditFile: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
   :System.Windows.Forms.Form
     Void .ctor(User, UInt64, System.String, System.String): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
-    Void .ctor(User, UInt64, System.String): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+    Void .ctor(User, UInt64): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
     Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
   Fields:
     UInt64 connectSocket : Public

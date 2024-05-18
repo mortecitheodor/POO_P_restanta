@@ -286,8 +286,6 @@ namespace POOP {
 
 			//aici trimit catre server email si password
 			Json::Value jsonData;
-			//clientSocket->Connect(serverEndPoint);
-
 			jsonData["operatiune"] = msclr::interop::marshal_as<std::string>(operatiune);
 			jsonData["name"] = msclr::interop::marshal_as<std::string>(name);
 			jsonData["mail"] = msclr::interop::marshal_as<std::string>(email);
