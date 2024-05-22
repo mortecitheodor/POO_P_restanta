@@ -161,8 +161,8 @@ namespace POOP {
 			int dataLength = dataBytes->Length;
 			send(connectSocket, reinterpret_cast<char*>(pinnedData), dataLength, 0);
 
-			// Prime?te r?spunsul de la server
-			const int bufferSize = 1048576; // Dimensiunea bufferului poate fi ajustat? dup? necesit??i
+			// Primeste raspunsul de la server
+			const int bufferSize = 1048576; // Dimensiunea bufferului 
 			array<Byte>^ recvBuffer = gcnew array<Byte>(bufferSize);
 			pin_ptr<Byte> pinnedRecvBuffer = &recvBuffer[0];
 

@@ -1,6 +1,7 @@
   POOP.EditFile.resources - Embedded, ContainedInManifestFile, 
   POOP.Main.resources - Embedded, ContainedInManifestFile, 
   POOP.Register.resources - Embedded, ContainedInManifestFile, 
+  POOP.Save_New_File.resources - Embedded, ContainedInManifestFile, 
   POOP.ShareForm.resources - Embedded, ContainedInManifestFile, 
   POOP.UserConnectInterface.resources - Embedded, ContainedInManifestFile, 
 ImageRuntimeVersion: v4.0.30319
@@ -60,6 +61,18 @@ Class POOP.ShareForm: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     User user : Public
     UInt64 connectSocket : Public
     System.String file : Public
+Class POOP.Save_New_File: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+  :System.Windows.Forms.Form
+    Void .ctor(UInt64, User, System.String): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Fields:
+    UInt64 connectSocket : Public
+    User user : Public
+    System.String name : Public
+    System.String file_content : Public
+  Methods:
+    Set_New_Name(String): PrivateScope, Public, HideBySig
+    return_name(): PrivateScope, Public, HideBySig
 Class POOP.EditFile: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
   :System.Windows.Forms.Form
     Void .ctor(User, UInt64, System.String, System.String): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName

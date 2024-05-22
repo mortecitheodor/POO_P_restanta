@@ -149,6 +149,9 @@ namespace POOP {
 						Console::WriteLine("Owner's Email: " + this->user->email);
 						Console::WriteLine("File to be shared: " + file);
 						Console::WriteLine("Shared User's Email: " + email);
+						MessageBox::Show("Acest fisier a fost distribuit cu succes!");
+						this->Close();
+
 					}
 					else if(email==this->user->email) {
 						MessageBox::Show("Eroare: Nu iti poti distribui singur un fisier!");

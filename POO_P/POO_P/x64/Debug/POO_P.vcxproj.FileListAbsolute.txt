@@ -21,3 +21,4 @@ D:\proiect_POO\POO_P_restanta-adrian\POO_P\POO_P\x64\Debug\POOP.Register.resourc
 D:\proiect_POO\POO_P_restanta-adrian\POO_P\POO_P\x64\Debug\POOP.ShareForm.resources
 D:\proiect_POO\POO_P_restanta-adrian\POO_P\POO_P\x64\Debug\POOP.UserConnectInterface.resources
 D:\proiect_POO\POO_P_restanta-adrian\POO_P\POO_P\x64\Debug\POO_P.vcxproj.GenerateResource.cache
+D:\proiect_POO\POO_P_restanta-adrian\POO_P\POO_P\x64\Debug\POOP.Save_New_File.resources

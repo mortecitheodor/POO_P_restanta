@@ -2,6 +2,7 @@
 #include "InputForm.h"
 #include "ShareForm.h"
 #include <cliext/list>
+#include "Save_New_File.h"
 
 
 namespace POOP {
@@ -79,6 +80,8 @@ namespace POOP {
 	private: System::Windows::Forms::ToolStripMenuItem^ ctxDelete;
 	private: System::Windows::Forms::RichTextBox^ richTextBox;
 	private: System::Windows::Forms::ToolStripButton^ ShareButton;
+	
+
 
 	private: System::ComponentModel::IContainer^ components;
 
@@ -269,10 +272,56 @@ namespace POOP {
 
 		private: void cmdSave_Click(System::Object^ sender, System::EventArgs^ e)
 		{
-			// Codul pentru salvarea documentului
-			POOP::InputForm^ in = gcnew POOP::InputForm(user, connectSocket);
-			in->ShowDialog();
+			//salvare fisier
+			if (this->file_Name == "New File") {  //daca fisierul este New File si nu este in baza de date
+				
+				Save_New_File^ save_file = gcnew Save_New_File(this->connectSocket,this->user,this->richTextBox->Rtf);
+				save_file->ShowDialog();
+				this->file_Name = save_file->return_name();
+
+
+			}
+			else {
+				//se trimite fisierul la server pentru salvare, fisier existent in baza de date
+				Json::Value jsonData;
+				jsonData["operatiune"] = "save_existing_file";
+				String^ file = this->file_Name;
+				String^ file_content = this->richTextBox->Rtf;
+				jsonData["file"] = msclr::interop::marshal_as<std::string>(file);
+				jsonData["file_content"] = msclr::interop::marshal_as<std::string>(file_content);
+				Console::WriteLine("Operatiune: save_existing file ");
+
+				std::string jsonString = jsonData.toStyledString();
+				array<Byte>^ dataBytes = Encoding::ASCII->GetBytes(msclr::interop::marshal_as<String^>(jsonString));
+				pin_ptr<unsigned char> pinnedData = &dataBytes[0];
+				int dataLength = dataBytes->Length;
+				send(connectSocket, reinterpret_cast<char*>(pinnedData), dataLength, 0);
+
+				// Raspunsul de la server
+				char responseBuffer[2]; 
+				int bytesReceived = recv(connectSocket, responseBuffer, sizeof(responseBuffer), 0);
+
+				if (bytesReceived == SOCKET_ERROR) {
+					std::cerr << "Eroare la primirea raspunsului de la server.\n";
+				}
+				else if (bytesReceived == 0) {
+					std::cerr << "Conexiunea a fost inchisa de catre server.\n";
+				}
+				else {
+					bool saveSuccess = (responseBuffer[0] == '1'); 
+					if (saveSuccess) {
+						MessageBox::Show("Fisierul a fost salvat!", "Succes", MessageBoxButtons::OK, MessageBoxIcon::Information);
+					}
+					else {
+						MessageBox::Show("Fisierul nu a fost salvat!", "Eroare", MessageBoxButtons::OK, MessageBoxIcon::Error);
+					}
+				}
+
+
+
+			}
 		}
+
 
 		private: void richTextBox_SelectionChanged(System::Object^ sender, System::EventArgs^ e)
 		{
