@@ -41,7 +41,7 @@ std::vector<SocketEmailPair> Clienti_Conectati;
 
 #define DEFAULT_BUFLEN 512
 #define DEFAULT_PORT "27018"
-char recvbuf[2000] = "";
+char recvbuf[1048576] = "";
 
 int Verify(User^% user, std::string mail, std::string password);
 
@@ -174,8 +174,10 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
         std::string email;
         std::string password;
         std::string file;
+        std::string file_content;
         std::string owner_email;
         std::string shared_email;
+        std::string files_location = "D:\\proiect_POO\\POO_P_restanta-adrian\\ServerFiles";
         if (operatiune == "login")
         {
             email = jsonData["mail"].asString();
@@ -399,6 +401,9 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
             // Citește conținutul fișierului
             std::string fileContent((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
 
+            //inchidem fisierul dupa ce am citit din el
+            inFile.close();
+
             // Trimite conținutul fișierului către client
             Json::Value response;
             response["operatiune"] = "send_file";
@@ -473,7 +478,139 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
                     sqlConn->Close();
                 }
             }
+        }
+        else if (operatiune == "save_existing_file") {
+            file = jsonData["file"].asString();
+            file_content = jsonData["file_content"].asString();
+            file += ".rtf";
+            files_location = files_location + "\\" + file;
+            bool saveSuccess = true;
+
+            std::ofstream outfile(files_location);
+
+            if (outfile.is_open()) {
+                outfile.write(file_content.c_str(), file_content.size());
+
+                outfile.close();
             }
+            else {
+                std::cerr << "Eroare: Nu se poate deschide fisierul!\n";
+                saveSuccess = false;
+            }
+
+
+            // Formează răspunsul
+            std::string response = (saveSuccess) ? "1" : "0";
+
+            // Trimite răspunsul la client
+            int bytesSent = send(AcceptSocket, response.c_str(), response.size(), 0);
+            if (bytesSent == SOCKET_ERROR) {
+                std::cerr << "Eroare la trimiterea răspunsului la client.\n";
+                // Poți trata eroarea aici, de exemplu, prin închiderea conexiunii sau alte acțiuni necesare
+            }
+
+        }
+        else if (operatiune == "verifying_file_name") {
+            file = jsonData["file"].asString();
+
+            // Convertim std::string la System::String^
+            String^ fileStr = gcnew String(file.c_str());
+
+            // Connection string
+            String^ connString = "Data Source=DESKTOP-OIGQPEQ;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+            SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+
+            try {
+                sqlConn->Open();
+
+                // Query pentru verificarea numelui fișierului
+                String^ sqlQueryFile = "SELECT COUNT(*) FROM Files WHERE filename = @filename";
+                SqlCommand^ commandFile = gcnew SqlCommand(sqlQueryFile, sqlConn);
+                commandFile->Parameters->AddWithValue("@filename", fileStr);
+
+                int count = (int)commandFile->ExecuteScalar();
+
+                if (count > 0) {
+                    std::cout <<std::endl<< "Fisierul exista in baza de date." << std::endl;
+                }
+                else {
+                    std::cout <<std::endl<< "Fisierul NU exista in baza de date." << std::endl;
+                }
+                int response = (count > 0) ? 0 : 1;
+
+                // Trimiterea răspunsului înapoi la client
+                send(AcceptSocket, (char*)&response, sizeof(response), 0);
+            }
+            finally {
+                if (sqlConn->State == ConnectionState::Open) {
+                    sqlConn->Close();
+                }
+            }
+
+            
+        }
+        else if (operatiune == "saving_new_file") {
+
+            file = jsonData["file"].asString();
+            file_content = jsonData["content"].asString();
+            email = jsonData["email"].asString();
+
+            // Convertim std::string la System::String^
+            String^ fileStr = gcnew String(file.c_str());
+            String^ fileContentStr = gcnew String(file_content.c_str());
+            String^ emailStr = gcnew String(email.c_str());
+            String^ fileLocationStr = gcnew String(files_location.c_str());
+
+            // Connection string
+            String^ connString = "Data Source=DESKTOP-OIGQPEQ;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+            SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+
+            try {
+                sqlConn->Open();
+
+                // Obține user_id din tabelul users folosind adresa de email
+                String^ sqlQueryUser = "SELECT id FROM dbo.[users] WHERE email = @user_email";
+                SqlCommand^ commandUser = gcnew SqlCommand(sqlQueryUser, sqlConn);
+                commandUser->Parameters->AddWithValue("@user_email", emailStr);
+
+                int user_id = (int)commandUser->ExecuteScalar();
+
+                // Introduce datele în tabelul Files
+                String^ sqlInsertFile = "INSERT INTO Files (filename, filepath, user_id) VALUES (@filename, @filepath, @user_id)";
+                SqlCommand^ commandInsertFile = gcnew SqlCommand(sqlInsertFile, sqlConn);
+                commandInsertFile->Parameters->AddWithValue("@filename", fileStr);
+                commandInsertFile->Parameters->AddWithValue("@filepath", fileLocationStr);
+                commandInsertFile->Parameters->AddWithValue("@user_id", user_id);
+
+                commandInsertFile->ExecuteNonQuery();
+
+                std::cout <<std::endl<< "Datele au fost inserate cu succes in tabel" << std::endl;
+            }
+            catch (Exception^ ex) {
+                std::cout << "A aparut o eroare: " <<std::endl;
+            }
+            finally {
+                if (sqlConn->State == ConnectionState::Open) {
+                    sqlConn->Close();
+                }
+            }
+            file += ".rtf";
+            files_location = files_location + "\\" + file;
+            bool saveSuccess = true;
+
+            std::ofstream outfile(files_location);
+
+            if (outfile.is_open()) {
+                outfile.write(file_content.c_str(), file_content.size());
+
+                outfile.close();
+            }
+            else {
+                std::cerr << "Eroare: Nu se poate deschide fisierul!\n";
+                saveSuccess = false;
+            }
+
+        }
 
     } while (1);
         

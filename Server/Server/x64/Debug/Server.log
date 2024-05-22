@@ -1,1 +1,11 @@
-﻿  Server.vcxproj -> D:\proiect_POO\POO_P_restanta-adrian\Server\x64\Debug\Server.exe
+﻿  Server.cpp
+D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(124,26): warning C4101: 'ex': unreferenced local variable
+D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(128,23): warning C4101: 'ex': unreferenced local variable
+D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(506,79): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(508,30): warning C4566: character represented by universal-character-name '\u0103' cannot be represented in the current code page (1252)
+D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(140,9): warning C4101: 'bytesSent': unreferenced local variable
+D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(589,31): warning C4101: 'ex': unreferenced local variable
+D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(641,10): warning C4101: 'recvbuf': unreferenced local variable
+D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(640,9): warning C4101: 'iSendResult': unreferenced local variable
+  Server.obj : MSIL module encountered; incremental linking is disabled for MSIL; performing full link
+  Server.vcxproj -> D:\proiect_POO\POO_P_restanta-adrian\Server\x64\Debug\Server.exe
