@@ -16,8 +16,12 @@
 #include <iomanip>
 #include <iostream>
 #include <vector>
+#include <vcclr.h>
+#include <fstream>
+#include <json/reader.h>
 
 int nrClienti = 0;
+
 
 using namespace System::Data;
 using namespace System::Threading;
@@ -28,6 +32,7 @@ using namespace System::Net::Sockets;
 using namespace System::Windows::Forms;
 using namespace System::Data::SqlClient;
 using namespace System::Text;
+
 using SocketEmailPair = std::pair<SOCKET, std::string>;
 
 std::vector<SocketEmailPair> Clienti_Conectati;
@@ -35,8 +40,8 @@ std::vector<SocketEmailPair> Clienti_Conectati;
 #pragma comment (lib, "Ws2_32.lib")
 
 #define DEFAULT_BUFLEN 512
-#define DEFAULT_PORT "27015"
-char recvbuf[2000] = "";
+#define DEFAULT_PORT "27018"
+char recvbuf[1048576] = "";
 
 int Verify(User^% user, std::string mail, std::string password);
 
@@ -85,6 +90,45 @@ std::vector<std::string> GetUserFilesFromDatabase(int userId) {
             sqlConn->Close();
         }
     }
+    //get user's shared files with him
+    try {
+        // Deschide conexiunea
+        sqlConn->Open();
+
+        // Interogare SQL pentru a selecta numele fisierelor din tabela Files care sunt partajate cu user_id-ul dat
+        String^ sqlQuery = "SELECT Files.filename FROM Files "
+            "INNER JOIN FileShare ON Files.id = FileShare.file_id "
+            "WHERE (FileShare.shared_user_id = @userId)";
+
+        // Comanda SQL
+        SqlCommand^ command = gcnew SqlCommand(sqlQuery, sqlConn);
+
+        // Adaugă parametrul userId la comandă
+        command->Parameters->AddWithValue("@userId", userId);
+
+        // Execută comanda și obține rezultatele
+        SqlDataReader^ reader = command->ExecuteReader();
+
+        // Citirea rezultatelor
+        while (reader->Read()) {
+            // Obțineți numele fișierului din rezultatul interogării
+            String^ filename = reader->GetString(0);
+
+            // Adăugați numele fișierului la fileList
+            fileList.push_back(msclr::interop::marshal_as<std::string>(filename));
+        }
+
+        // Închideți conexiunea și eliberați resursele
+        sqlConn->Close();
+    }
+    catch (SqlException^ ex) {
+        // Gestionarea excepțiilor SQL
+        // ex->Message conține mesajul de eroare
+    }
+    catch (Exception^ ex) {
+        // Gestionarea altor excepții
+        // ex->Message conține mesajul de eroare
+    }
 
     return fileList;
 }
@@ -129,6 +173,12 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
         std::cout<<operatiune;
         std::string email;
         std::string password;
+        std::string file;
+        std::string file_content;
+        std::string owner_email;
+        std::string shared_email;
+        std::string files_location = "C:\\Users\\UNKNOWN\\Downloads\\Compressed\\POO_P_restanta-main\\POO_P_restanta-main\\ServerFiles";
+        
         if (operatiune == "login")
         {
             email = jsonData["mail"].asString();
@@ -214,7 +264,7 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
             SqlConnection sqlConn(connString);
             sqlConn.Open();
 
-            String^ checkEmailQuery = "SELECT COUNT(*) FROM dbo.[user] WHERE email = @email";
+            String^ checkEmailQuery = "SELECT COUNT(*) FROM dbo.[users] WHERE email = @email";
             SqlCommand checkEmailCommand(checkEmailQuery, % sqlConn);
             checkEmailCommand.Parameters->AddWithValue("@email", mail);
 
@@ -230,7 +280,7 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
             else
             {
                 // Adresa de email nu exista, se poate adauga noul utilizator
-                String^ sqlQuery = "INSERT INTO dbo.[user] " +
+                String^ sqlQuery = "INSERT INTO dbo.[users] " +
                     "(name, email, password) VALUES " +
                     "(@name, @email, @password);";
 
@@ -278,7 +328,7 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
             String^ connString = "Data Source=DESKTOP-5AS8UAM\\SQLEXPRESS;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
             SqlConnection sqlConn(gcnew String(connString));
             sqlConn.Open();
-            String^ query = "SELECT COUNT(*) FROM dbo.[user] WHERE email = @mail";
+            String^ query = "SELECT COUNT(*) FROM dbo.[users] WHERE email = @mail";
             SqlCommand^ command = gcnew SqlCommand(query, % sqlConn);
             command->Parameters->AddWithValue("@mail", gcnew String(email.c_str()));
 
@@ -295,7 +345,330 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
             send(AcceptSocket, reinterpret_cast<char*>(pinnedData), responseBytes->Length, 0);
             
         }
+        else if (operatiune == "delete_file") {
+            std::string filename = jsonData["filename"].asString();
+            std::string userEmail = jsonData["email"].asString();
+            String^ connString = "Data Source=DESKTOP-5AS8UAM\\SQLEXPRESS;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+            SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+            int deleteResult = 0;
 
+            try {
+                sqlConn->Open();
+
+                // Check if the user is the owner of the file
+                String^ sqlQueryCheckOwner =
+                    "SELECT COUNT(*) FROM Files "
+                    "WHERE filename = @filename AND user_id = (SELECT id FROM dbo.[users] WHERE email = @userEmail)";
+
+                SqlCommand^ commandCheckOwner = gcnew SqlCommand(sqlQueryCheckOwner, sqlConn);
+                commandCheckOwner->Parameters->AddWithValue("@filename", gcnew String(filename.c_str()));
+                commandCheckOwner->Parameters->AddWithValue("@userEmail", gcnew String(userEmail.c_str()));
+
+                int isOwner = (int)commandCheckOwner->ExecuteScalar();
+
+                if (isOwner > 0) {
+                    // User is the owner, proceed to delete the file and related shares
+                    std::cout << "Utilizatorul este proprietarul fisierului. Se procedeaza la stergerea fisierului si a inregistrarilor partajate." << std::endl;
+                    std::string full_path = files_location + "\\" + filename + ".rtf";
+                    
+                    if (std::remove(full_path.c_str()) == 0) {
+                        std::cout << "Fisierul a fost sters cu succes de pe server." << std::endl;
+                    }
+                    else {
+                        std::cerr << "Fisierul nu a fost gasit sau nu a putut fi sters." << std::endl; 
+                    }
+
+                    String^ sqlQueryDeleteShares = "DELETE FROM FileShare WHERE file_id = (SELECT id FROM Files WHERE filename = @filename)";
+                    SqlCommand^ commandDeleteShares = gcnew SqlCommand(sqlQueryDeleteShares, sqlConn);
+                    commandDeleteShares->Parameters->AddWithValue("@filename", gcnew String(filename.c_str()));
+                    commandDeleteShares->ExecuteNonQuery();
+
+                    String^ sqlQueryDeleteFile = "DELETE FROM Files WHERE filename = @filename AND user_id = (SELECT id FROM dbo.[users] WHERE email = @userEmail)";
+                    SqlCommand^ commandDeleteFile = gcnew SqlCommand(sqlQueryDeleteFile, sqlConn);
+                    commandDeleteFile->Parameters->AddWithValue("@filename", gcnew String(filename.c_str()));
+                    commandDeleteFile->Parameters->AddWithValue("@userEmail", gcnew String(userEmail.c_str()));
+                    commandDeleteFile->ExecuteNonQuery();
+
+                    deleteResult = 1; // File and related shares deleted successfully
+                }
+            }
+            catch (Exception^ e) {
+                Console::WriteLine("A aparut o eroare: " + e->Message);
+            }
+            finally {
+                if (sqlConn->State == ConnectionState::Open) {
+                    sqlConn->Close();
+                }
+            }
+
+            send(AcceptSocket, reinterpret_cast<char*>(&deleteResult), sizeof(deleteResult), 0);
+        }
+        else if (operatiune == "requested_file") {
+
+            file = jsonData["nume_fisier"].asString();
+  
+            // Conectează-te la baza de date și caută calea completă a fișierului
+            String^ connString = "Data Source=DESKTOP-5AS8UAM\\SQLEXPRESS;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+            SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+
+            String^ filepath;
+            try {
+                // Deschide conexiunea la baza de date
+                sqlConn->Open();
+
+                // Pregătește interogarea SQL
+                String^ sqlQuery = "SELECT filepath FROM Files WHERE filename = @filename";
+                SqlCommand^ command = gcnew SqlCommand(sqlQuery, sqlConn);
+                command->Parameters->AddWithValue("@filename", gcnew String(file.c_str()));
+
+                // Execută interogarea și citește rezultatele
+                SqlDataReader^ reader = command->ExecuteReader();
+                if (reader->Read()) {
+                    filepath = reader->GetString(0); // Obține calea completă a fișierului
+                }
+                else {
+                    std::cerr << "File not found in database" << std::endl;
+                    int fileNotFound = -1;
+                    send(AcceptSocket, reinterpret_cast<char*>(&fileNotFound), sizeof(fileNotFound), 0);
+                    reader->Close();
+                    sqlConn->Close();
+                    return -1;
+                }
+
+                reader->Close();
+                sqlConn->Close();
+            }
+            catch (Exception^ e) {
+                std::cerr << "Database error: " << msclr::interop::marshal_as<std::string>(e->Message) << std::endl;
+                int dbError = -1;
+                send(AcceptSocket, reinterpret_cast<char*>(&dbError), sizeof(dbError), 0);
+                return -1;
+            }
+
+            // Adaugă extensia ".rtf" la filepath
+            filepath += "\\" + gcnew String(file.c_str()) + ".rtf";
+
+            // Deschide fișierul folosind calea completă
+            std::ifstream inFile(msclr::interop::marshal_as<std::string>(filepath));
+            if (!inFile) {
+                std::cerr << "Unable to open file: " << msclr::interop::marshal_as<std::string>(filepath) << std::endl;
+                int fileError = -1;
+                send(AcceptSocket, reinterpret_cast<char*>(&fileError), sizeof(fileError), 0);
+                return -1;
+            }
+
+            // Citește conținutul fișierului
+            std::string fileContent((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
+
+            //inchidem fisierul dupa ce am citit din el
+            inFile.close();
+
+            // Trimite conținutul fișierului către client
+            Json::Value response;
+            response["operatiune"] = "send_file";
+            response["file_content"] = fileContent;
+
+            // Convert the JSON object to a string
+            std::string responseString = response.toStyledString();
+
+            // Convert the string to bytes for sending
+            array<Byte>^ responseBytes = Encoding::ASCII->GetBytes(msclr::interop::marshal_as<String^>(responseString));
+            pin_ptr<Byte> pinnedResponseData = &responseBytes[0];
+            int responseDataLength = responseBytes->Length;
+
+            // Send the JSON string to the client
+            int bytesSentResponse = send(AcceptSocket, reinterpret_cast<char*>(pinnedResponseData), responseDataLength, 0);
+
+            // Check if the data was sent successfully
+            if (bytesSentResponse == SOCKET_ERROR) {
+                std::cerr <<std::endl<< "Error sending file content." << std::endl;
+            }
+            else {
+                std::cout <<std::endl<< "File content sent successfully." << std::endl;
+            }
+
+        }
+        else if (operatiune == "make_share") {
+
+            file = jsonData["shared_file"].asString();
+            owner_email = jsonData["owner_email"].asString();
+            shared_email = jsonData["shared_email"].asString();
+            std::cout << std::endl << "Operatiune: " << operatiune << std::endl << "Owner's Email: " << owner_email << std::endl << "Shared file: " << file << std::endl << "Share with: " << shared_email << std::endl;
+
+            String^ connString = "Data Source=DESKTOP-5AS8UAM\\SQLEXPRESS;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+            SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+
+            try {
+                sqlConn->Open();
+
+                // Fetch file_id
+                String^ sqlQueryFile = "SELECT id FROM Files WHERE filename = @filename";
+                SqlCommand^ commandFile = gcnew SqlCommand(sqlQueryFile, sqlConn);
+                commandFile->Parameters->AddWithValue("@filename", gcnew String(file.c_str()));
+                int file_id = (int)commandFile->ExecuteScalar();
+
+                // Fetch owner_user_id
+                String^ sqlQueryOwner = "SELECT id FROM dbo.[users] WHERE email = @owner_email";
+                SqlCommand^ commandOwner = gcnew SqlCommand(sqlQueryOwner, sqlConn);
+                commandOwner->Parameters->AddWithValue("@owner_email", gcnew String(owner_email.c_str()));
+                int owner_user_id = (int)commandOwner->ExecuteScalar();
+
+                // Fetch shared_user_id
+                String^ sqlQueryShared = "SELECT id FROM dbo.[users] WHERE email = @shared_email";
+                SqlCommand^ commandShared = gcnew SqlCommand(sqlQueryShared, sqlConn);
+                commandShared->Parameters->AddWithValue("@shared_email", gcnew String(shared_email.c_str()));
+                int shared_user_id = (int)commandShared->ExecuteScalar();
+
+                // Insert into FileShare table
+                String^ sqlInsert = "INSERT INTO FileShare (file_id, owner_user_id, shared_user_id) VALUES (@file_id, @owner_user_id, @shared_user_id)";
+                SqlCommand^ commandInsert = gcnew SqlCommand(sqlInsert, sqlConn);
+                commandInsert->Parameters->AddWithValue("@file_id", file_id);
+                commandInsert->Parameters->AddWithValue("@owner_user_id", owner_user_id);
+                commandInsert->Parameters->AddWithValue("@shared_user_id", shared_user_id);
+                commandInsert->ExecuteNonQuery();
+
+                std::cout << "File shared successfully." << std::endl;
+            }
+            catch (Exception^ e) {
+                Console::WriteLine("An error occurred: " + e->Message);
+            }
+            finally {
+                if (sqlConn->State == ConnectionState::Open) {
+                    sqlConn->Close();
+                }
+            }
+        }
+        else if (operatiune == "save_existing_file") {
+            file = jsonData["file"].asString();
+            file_content = jsonData["file_content"].asString();
+            file += ".rtf";
+            files_location = files_location + "\\" + file;
+            bool saveSuccess = true;
+
+            std::ofstream outfile(files_location);
+
+            if (outfile.is_open()) {
+                outfile.write(file_content.c_str(), file_content.size());
+
+                outfile.close();
+            }
+            else {
+                std::cerr << "Eroare: Nu se poate deschide fisierul!\n";
+                saveSuccess = false;
+            }
+
+
+            // Formează răspunsul
+            std::string response = (saveSuccess) ? "1" : "0";
+
+            // Trimite răspunsul la client
+            int bytesSent = send(AcceptSocket, response.c_str(), response.size(), 0);
+            if (bytesSent == SOCKET_ERROR) {
+                std::cerr << "Eroare la trimiterea răspunsului la client.\n";
+                // Poți trata eroarea aici, de exemplu, prin închiderea conexiunii sau alte acțiuni necesare
+            }
+
+        }
+        else if (operatiune == "verifying_file_name") {
+            file = jsonData["file"].asString();
+
+            // Convertim std::string la System::String^
+            String^ fileStr = gcnew String(file.c_str());
+
+            // Connection string
+            String^ connString = "Data Source=DESKTOP-5AS8UAM\\SQLEXPRESS;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+            SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+
+            try {
+                sqlConn->Open();
+
+                // Query pentru verificarea numelui fișierului
+                String^ sqlQueryFile = "SELECT COUNT(*) FROM Files WHERE filename = @filename";
+                SqlCommand^ commandFile = gcnew SqlCommand(sqlQueryFile, sqlConn);
+                commandFile->Parameters->AddWithValue("@filename", fileStr);
+
+                int count = (int)commandFile->ExecuteScalar();
+
+                if (count > 0) {
+                    std::cout <<std::endl<< "Fisierul exista in baza de date." << std::endl;
+                }
+                else {
+                    std::cout <<std::endl<< "Fisierul NU exista in baza de date." << std::endl;
+                }
+                int response = (count > 0) ? 0 : 1;
+
+                // Trimiterea răspunsului înapoi la client
+                send(AcceptSocket, (char*)&response, sizeof(response), 0);
+            }
+            finally {
+                if (sqlConn->State == ConnectionState::Open) {
+                    sqlConn->Close();
+                }
+            }
+
+            
+        }
+        else if (operatiune == "saving_new_file") {
+
+            file = jsonData["file"].asString();
+            file_content = jsonData["content"].asString();
+            email = jsonData["email"].asString();
+
+            // Convertim std::string la System::String^
+            String^ fileStr = gcnew String(file.c_str());
+            String^ fileContentStr = gcnew String(file_content.c_str());
+            String^ emailStr = gcnew String(email.c_str());
+            String^ fileLocationStr = gcnew String(files_location.c_str());
+
+            // Connection string
+            String^ connString = "Data Source=DESKTOP-5AS8UAM\\SQLEXPRESS;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+            SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+
+            try {
+                sqlConn->Open();
+
+                // Obține user_id din tabelul users folosind adresa de email
+                String^ sqlQueryUser = "SELECT id FROM dbo.[users] WHERE email = @user_email";
+                SqlCommand^ commandUser = gcnew SqlCommand(sqlQueryUser, sqlConn);
+                commandUser->Parameters->AddWithValue("@user_email", emailStr);
+
+                int user_id = (int)commandUser->ExecuteScalar();
+
+                // Introduce datele în tabelul Files
+                String^ sqlInsertFile = "INSERT INTO Files (filename, filepath, user_id) VALUES (@filename, @filepath, @user_id)";
+                SqlCommand^ commandInsertFile = gcnew SqlCommand(sqlInsertFile, sqlConn);
+                commandInsertFile->Parameters->AddWithValue("@filename", fileStr);
+                commandInsertFile->Parameters->AddWithValue("@filepath", fileLocationStr);
+                commandInsertFile->Parameters->AddWithValue("@user_id", user_id);
+
+                commandInsertFile->ExecuteNonQuery();
+
+                std::cout <<std::endl<< "Datele au fost inserate cu succes in tabel" << std::endl;
+            }
+            catch (Exception^ ex) {
+                std::cout << "A aparut o eroare: " <<std::endl;
+            }
+            finally {
+                if (sqlConn->State == ConnectionState::Open) {
+                    sqlConn->Close();
+                }
+            }
+            file += ".rtf";
+            files_location = files_location + "\\" + file;
+            bool saveSuccess = true;
+
+            std::ofstream outfile(files_location);
+
+            if (outfile.is_open()) {
+                outfile.write(file_content.c_str(), file_content.size());
+
+                outfile.close();
+            }
+            else {
+                std::cerr << "Eroare: Nu se poate deschide fisierul!\n";
+                saveSuccess = false;
+            }
+        }
     } while (1);
         
     auto it = std::find_if(Clienti_Conectati.begin(), Clienti_Conectati.end(),
@@ -357,6 +730,7 @@ int __cdecl main(void)
 
     listen(ListenSocket, SOMAXCONN);
     // Accept a client socket
+
     for (nrClienti = 1; 1; nrClienti++)
     {
         AcceptSocket = SOCKET_ERROR;
@@ -393,7 +767,7 @@ int Verify(User^% user, std::string mail, std::string password) {
         sqlConn.Open();
 
         // Retrieve the user from the database for the given email
-        String^ sqlQuery = "SELECT id, name, email, password FROM dbo.[user] WHERE email=@mail;";
+        String^ sqlQuery = "SELECT id, name, email, password FROM dbo.[users] WHERE email=@mail;";
         SqlCommand command(sqlQuery, % sqlConn);
 
         command.Parameters->Add("@mail", SqlDbType::NVarChar, 50)->Value = gcnew String(mail.c_str());
