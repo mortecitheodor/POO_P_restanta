@@ -61,13 +61,15 @@ namespace POOP {
 			}
 		}
 	private: System::Windows::Forms::ToolStripStatusLabel^ statusLabel;
-	protected:
 	private: System::Windows::Forms::ColorDialog^ colorDialog;
 	private: System::Windows::Forms::FontDialog^ fontDialog;
 	private: System::Windows::Forms::SaveFileDialog^ saveFileDialog;
 	private: System::Windows::Forms::OpenFileDialog^ openFileDialog;
 	private: System::Windows::Forms::ToolStripButton^ cmdItalic;
 	private: System::Windows::Forms::ToolStripButton^ cmdBold;
+	private: System::Windows::Forms::ToolStripButton^ cmdGreen;
+	private: System::Windows::Forms::ToolStripButton^ cmdRed;
+	private: System::Windows::Forms::ToolStripButton^ cmdUnderline;
 	private: System::Windows::Forms::ToolStripButton^ cmdSave;
 	private: System::Windows::Forms::StatusStrip^ statusStrip;
 	private: System::Windows::Forms::ToolStrip^ toolStrip;
@@ -80,10 +82,11 @@ namespace POOP {
 	private: System::Windows::Forms::ToolStripMenuItem^ ctxDelete;
 	private: System::Windows::Forms::RichTextBox^ richTextBox;
 	private: System::Windows::Forms::ToolStripButton^ ShareButton;
-	
-
-
 	private: System::ComponentModel::IContainer^ components;
+	private: System::Windows::Forms::ToolStripButton^ cmdAlignLeft;
+	private: System::Windows::Forms::ToolStripButton^ cmdAlignCenter;
+	private: System::Windows::Forms::ToolStripButton^ cmdAlignRight;
+
 
 	private:
 		/// <summary>
@@ -107,10 +110,16 @@ namespace POOP {
 			this->openFileDialog = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->cmdItalic = (gcnew System::Windows::Forms::ToolStripButton());
 			this->cmdBold = (gcnew System::Windows::Forms::ToolStripButton());
+			this->cmdGreen = (gcnew System::Windows::Forms::ToolStripButton());
+			this->cmdUnderline = (gcnew System::Windows::Forms::ToolStripButton());
 			this->cmdSave = (gcnew System::Windows::Forms::ToolStripButton());
 			this->statusStrip = (gcnew System::Windows::Forms::StatusStrip());
 			this->toolStrip = (gcnew System::Windows::Forms::ToolStrip());
+			this->cmdRed = (gcnew System::Windows::Forms::ToolStripButton());
 			this->ShareButton = (gcnew System::Windows::Forms::ToolStripButton());
+			this->cmdAlignLeft = (gcnew System::Windows::Forms::ToolStripButton());
+			this->cmdAlignCenter = (gcnew System::Windows::Forms::ToolStripButton());
+			this->cmdAlignRight = (gcnew System::Windows::Forms::ToolStripButton());
 			this->ctxSelectAll = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolStripSeparator8 = (gcnew System::Windows::Forms::ToolStripSeparator());
 			this->ctxPaste = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -121,6 +130,7 @@ namespace POOP {
 			this->richTextBox = (gcnew System::Windows::Forms::RichTextBox());
 			this->statusStrip->SuspendLayout();
 			this->toolStrip->SuspendLayout();
+			this->contextMenuStrip->SuspendLayout();
 			this->SuspendLayout();
 			// 
 			// statusLabel
@@ -135,7 +145,7 @@ namespace POOP {
 			this->cmdItalic->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"cmdItalic.Image")));
 			this->cmdItalic->ImageTransparentColor = System::Drawing::Color::Magenta;
 			this->cmdItalic->Name = L"cmdItalic";
-			this->cmdItalic->Size = System::Drawing::Size(23, 20);
+			this->cmdItalic->Size = System::Drawing::Size(23, 22);
 			this->cmdItalic->Text = L"Italic";
 			this->cmdItalic->Click += gcnew System::EventHandler(this, &EditFile::cmdItalic_Click);
 			// 
@@ -145,9 +155,29 @@ namespace POOP {
 			this->cmdBold->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"cmdBold.Image")));
 			this->cmdBold->ImageTransparentColor = System::Drawing::Color::Magenta;
 			this->cmdBold->Name = L"cmdBold";
-			this->cmdBold->Size = System::Drawing::Size(23, 20);
+			this->cmdBold->Size = System::Drawing::Size(23, 22);
 			this->cmdBold->Text = L"Bold";
 			this->cmdBold->Click += gcnew System::EventHandler(this, &EditFile::cmdBold_Click);
+			// 
+			// cmdGreen
+			// 
+			this->cmdGreen->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Image;
+			this->cmdGreen->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"cmdGreen.Image")));
+			this->cmdGreen->ImageTransparentColor = System::Drawing::Color::Magenta;
+			this->cmdGreen->Name = L"cmdGreen";
+			this->cmdGreen->Size = System::Drawing::Size(23, 22);
+			this->cmdGreen->Text = L"Green";
+			this->cmdGreen->Click += gcnew System::EventHandler(this, &EditFile::cmdGreen_Click);
+			// 
+			// cmdUnderline
+			// 
+			this->cmdUnderline->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Image;
+			this->cmdUnderline->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"cmdUnderline.Image")));
+			this->cmdUnderline->ImageTransparentColor = System::Drawing::Color::Magenta;
+			this->cmdUnderline->Name = L"cmdUnderline";
+			this->cmdUnderline->Size = System::Drawing::Size(23, 22);
+			this->cmdUnderline->Text = L"Underline";
+			this->cmdUnderline->Click += gcnew System::EventHandler(this, &EditFile::cmdUnderline_Click);
 			// 
 			// cmdSave
 			// 
@@ -155,7 +185,7 @@ namespace POOP {
 			this->cmdSave->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"cmdSave.Image")));
 			this->cmdSave->ImageTransparentColor = System::Drawing::Color::Magenta;
 			this->cmdSave->Name = L"cmdSave";
-			this->cmdSave->Size = System::Drawing::Size(23, 20);
+			this->cmdSave->Size = System::Drawing::Size(23, 22);
 			this->cmdSave->Text = L"Save";
 			this->cmdSave->Click += gcnew System::EventHandler(this, &EditFile::cmdSave_Click);
 			// 
@@ -174,16 +204,27 @@ namespace POOP {
 			// 
 			this->toolStrip->BackColor = System::Drawing::SystemColors::MenuBar;
 			this->toolStrip->GripStyle = System::Windows::Forms::ToolStripGripStyle::Hidden;
-			this->toolStrip->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
+			this->toolStrip->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(10) {
 				this->cmdSave, this->cmdBold,
-					this->cmdItalic, this->ShareButton
+					this->cmdItalic, this->cmdUnderline, this->cmdGreen, this->cmdRed, this->ShareButton, this->cmdAlignLeft, this->cmdAlignCenter,
+					this->cmdAlignRight
 			});
 			this->toolStrip->Location = System::Drawing::Point(0, 0);
 			this->toolStrip->Name = L"toolStrip";
-			this->toolStrip->Padding = System::Windows::Forms::Padding(5);
-			this->toolStrip->Size = System::Drawing::Size(784, 33);
+			this->toolStrip->Padding = System::Windows::Forms::Padding(10, 0, 1, 0);
+			this->toolStrip->Size = System::Drawing::Size(784, 25);
 			this->toolStrip->TabIndex = 4;
 			this->toolStrip->Text = L"toolStrip";
+			// 
+			// cmdRed
+			// 
+			this->cmdRed->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Image;
+			this->cmdRed->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"cmdRed.Image")));
+			this->cmdRed->ImageTransparentColor = System::Drawing::Color::Magenta;
+			this->cmdRed->Name = L"cmdRed";
+			this->cmdRed->Size = System::Drawing::Size(23, 22);
+			this->cmdRed->Text = L"Red";
+			this->cmdRed->Click += gcnew System::EventHandler(this, &EditFile::cmdRed_Click);
 			// 
 			// ShareButton
 			// 
@@ -191,44 +232,79 @@ namespace POOP {
 			this->ShareButton->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"ShareButton.Image")));
 			this->ShareButton->ImageTransparentColor = System::Drawing::Color::Magenta;
 			this->ShareButton->Name = L"ShareButton";
-			this->ShareButton->Size = System::Drawing::Size(23, 20);
-			this->ShareButton->Text = L"toolStripButton1";
-			this->ShareButton->ToolTipText = L"Share";
+			this->ShareButton->Size = System::Drawing::Size(23, 22);
+			this->ShareButton->Text = L"Share";
 			this->ShareButton->Click += gcnew System::EventHandler(this, &EditFile::ShareButton_Click);
+			// 
+			// cmdAlignLeft
+			// 
+			this->cmdAlignLeft->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Image;
+			this->cmdAlignLeft->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"cmdAlignLeft.Image")));
+			this->cmdAlignLeft->ImageTransparentColor = System::Drawing::Color::Magenta;
+			this->cmdAlignLeft->Name = L"cmdAlignLeft";
+			this->cmdAlignLeft->Size = System::Drawing::Size(23, 22);
+			this->cmdAlignLeft->Text = L"Align Left";
+			this->cmdAlignLeft->Click += gcnew System::EventHandler(this, &EditFile::cmdAlignLeft_Click);
+			// 
+			// cmdAlignCenter
+			// 
+			this->cmdAlignCenter->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Image;
+			this->cmdAlignCenter->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"cmdAlignCenter.Image")));
+			this->cmdAlignCenter->ImageTransparentColor = System::Drawing::Color::Magenta;
+			this->cmdAlignCenter->Name = L"cmdAlignCenter";
+			this->cmdAlignCenter->Size = System::Drawing::Size(23, 22);
+			this->cmdAlignCenter->Text = L"Align Center";
+			this->cmdAlignCenter->Click += gcnew System::EventHandler(this, &EditFile::cmdAlignCenter_Click);
+			// 
+			// cmdAlignRight
+			// 
+			this->cmdAlignRight->DisplayStyle = System::Windows::Forms::ToolStripItemDisplayStyle::Image;
+			this->cmdAlignRight->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"cmdAlignRight.Image")));
+			this->cmdAlignRight->ImageTransparentColor = System::Drawing::Color::Magenta;
+			this->cmdAlignRight->Name = L"cmdAlignRight";
+			this->cmdAlignRight->Size = System::Drawing::Size(23, 22);
+			this->cmdAlignRight->Text = L"Align Right";
+			this->cmdAlignRight->Click += gcnew System::EventHandler(this, &EditFile::cmdAlignRight_Click);
 			// 
 			// ctxSelectAll
 			// 
 			this->ctxSelectAll->Name = L"ctxSelectAll";
-			this->ctxSelectAll->Size = System::Drawing::Size(32, 19);
+			this->ctxSelectAll->Size = System::Drawing::Size(67, 22);
 			// 
 			// toolStripSeparator8
 			// 
 			this->toolStripSeparator8->Name = L"toolStripSeparator8";
-			this->toolStripSeparator8->Size = System::Drawing::Size(6, 6);
+			this->toolStripSeparator8->Size = System::Drawing::Size(64, 6);
 			// 
 			// ctxPaste
 			// 
 			this->ctxPaste->Name = L"ctxPaste";
-			this->ctxPaste->Size = System::Drawing::Size(32, 19);
+			this->ctxPaste->Size = System::Drawing::Size(67, 22);
 			// 
 			// ctxCopy
 			// 
 			this->ctxCopy->Name = L"ctxCopy";
-			this->ctxCopy->Size = System::Drawing::Size(32, 19);
+			this->ctxCopy->Size = System::Drawing::Size(67, 22);
 			// 
 			// ctxCut
 			// 
 			this->ctxCut->Name = L"ctxCut";
-			this->ctxCut->Size = System::Drawing::Size(32, 19);
+			this->ctxCut->Size = System::Drawing::Size(67, 22);
 			// 
 			// contextMenuStrip
 			// 
+			this->contextMenuStrip->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {
+				this->ctxCut, this->ctxCopy,
+					this->ctxPaste, this->toolStripSeparator8, this->ctxSelectAll
+			});
 			this->contextMenuStrip->Name = L"contextMenuStrip";
+			this->contextMenuStrip->Size = System::Drawing::Size(68, 98);
 			// 
 			// ctxDelete
 			// 
 			this->ctxDelete->Name = L"ctxDelete";
 			this->ctxDelete->Size = System::Drawing::Size(32, 19);
+			this->ctxDelete->Text = L"Delete";
 			// 
 			// richTextBox
 			// 
@@ -250,7 +326,6 @@ namespace POOP {
 			// 
 			// EditFile
 			// 
-			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(784, 561);
@@ -260,11 +335,13 @@ namespace POOP {
 			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->MinimumSize = System::Drawing::Size(400, 300);
 			this->Name = L"EditFile";
+			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"File Editor";
 			this->statusStrip->ResumeLayout(false);
 			this->statusStrip->PerformLayout();
 			this->toolStrip->ResumeLayout(false);
 			this->toolStrip->PerformLayout();
+			this->contextMenuStrip->ResumeLayout(false);
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -348,6 +425,24 @@ namespace POOP {
 				cmdItalic->Checked = richTextBox->SelectionFont->Italic;
 			}
 		}
+		
+		private: System::Void cmdUnderline_Click(System::Object^ sender, System::EventArgs^ e)
+		{
+			System::Drawing::FontStyle newStyle = richTextBox->SelectionFont->Style;
+			int intStyle = static_cast<int>(newStyle);
+			if (richTextBox->SelectionFont->Underline)
+			{
+				intStyle &= ~static_cast<int>(System::Drawing::FontStyle::Underline);
+			}
+			else
+			{
+				intStyle |= static_cast<int>(System::Drawing::FontStyle::Underline);
+			}
+			newStyle = static_cast<System::Drawing::FontStyle>(intStyle);
+			richTextBox->SelectionFont = gcnew System::Drawing::Font(richTextBox->SelectionFont, newStyle);
+			toggleFontView();
+		}
+
 		private: System::Void cmdBold_Click(System::Object^ sender, System::EventArgs^ e)
 		{
 			System::Drawing::FontStyle newStyle = richTextBox->SelectionFont->Style;//obtin font-ul
@@ -361,7 +456,7 @@ namespace POOP {
 				intStyle |= static_cast<int>(System::Drawing::FontStyle::Bold);
 			}
 			newStyle = static_cast<System::Drawing::FontStyle>(intStyle);
-			richTextBox->SelectionFont = gcnew System::Drawing::Font(richTextBox->SelectionFont, newStyle);//se seteaza pe text noul font
+			richTextBox->SelectionFont = gcnew System::Drawing::Font(richTextBox->SelectionFont, newStyle);
 			toggleFontView();
 		}
 		private: System::Void cmdItalic_Click(System::Object^ sender, System::EventArgs^ e)
@@ -376,8 +471,52 @@ namespace POOP {
 			{
 				intStyle |= static_cast<int>(System::Drawing::FontStyle::Italic);
 			}
-			newStyle = static_cast<System::Drawing::FontStyle>(intStyle); // Update the FontStyle with the new intStyle
+			newStyle = static_cast<System::Drawing::FontStyle>(intStyle);
 			richTextBox->SelectionFont = gcnew System::Drawing::Font(richTextBox->SelectionFont, newStyle);
+			toggleFontView();
+		}
+
+		private: System::Void cmdGreen_Click(System::Object^ sender, System::EventArgs^ e)
+		{
+			if (richTextBox->SelectionColor == System::Drawing::Color::Green)
+			{
+				richTextBox->SelectionColor = System::Drawing::Color::Black;
+			}
+			else
+			{
+				richTextBox->SelectionColor = System::Drawing::Color::Green;
+			}
+			toggleFontView();
+		}
+
+		private: System::Void cmdAlignLeft_Click(System::Object^ sender, System::EventArgs^ e)
+		{
+			richTextBox->SelectionAlignment = HorizontalAlignment::Left;
+			toggleFontView();
+		}
+
+		private: System::Void cmdAlignCenter_Click(System::Object^ sender, System::EventArgs^ e)
+		{
+			richTextBox->SelectionAlignment = HorizontalAlignment::Center;
+			toggleFontView();
+		}
+
+		private: System::Void cmdAlignRight_Click(System::Object^ sender, System::EventArgs^ e)
+		{
+			richTextBox->SelectionAlignment = HorizontalAlignment::Right;
+			toggleFontView();
+		}
+
+		private: System::Void cmdRed_Click(System::Object^ sender, System::EventArgs^ e)
+		{
+			if (richTextBox->SelectionColor == System::Drawing::Color::Red)
+			{
+				richTextBox->SelectionColor = System::Drawing::Color::Black;
+			}
+			else
+			{
+				richTextBox->SelectionColor = System::Drawing::Color::Red;
+			}
 			toggleFontView();
 		}
 #pragma endregion

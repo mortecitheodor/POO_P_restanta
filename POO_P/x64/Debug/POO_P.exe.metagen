@@ -82,6 +82,12 @@ Class POOP.EditFile: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     UInt64 connectSocket : Public
     User user : Public
     System.String file_Name : Public
+Class POOP.DeleteFileInfoForm: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+  :System.Windows.Forms.Form
+    Void .ctor(User, UInt64): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Fields:
+    UInt64 connectSocket : Public
+    User user : Public
 Class POOP.Main: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
   :System.Windows.Forms.Form
     Void .ctor(User, UInt64): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName

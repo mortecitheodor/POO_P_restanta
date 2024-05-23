@@ -1,1 +1,6 @@
-﻿  POO_P.vcxproj -> D:\proiect_POO\POO_P_restanta-adrian\POO_P\x64\Debug\POO_P.exe
+﻿  Source.cpp
+D:\proiect_POO\POO_P_restanta-adrian\POO_P\POO_P\DeleteFileInfoForm.h(103,68): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'Source.cpp')
+  
+  Source.obj : MSIL module encountered; incremental linking is disabled for MSIL; performing full link
+  POO_P.vcxproj -> D:\proiect_POO\POO_P_restanta-adrian\POO_P\x64\Debug\POO_P.exe

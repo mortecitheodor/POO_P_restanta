@@ -22,3 +22,12 @@ D:\proiect_POO\POO_P_restanta-adrian\POO_P\POO_P\x64\Debug\POOP.ShareForm.resour
 D:\proiect_POO\POO_P_restanta-adrian\POO_P\POO_P\x64\Debug\POOP.UserConnectInterface.resources
 D:\proiect_POO\POO_P_restanta-adrian\POO_P\POO_P\x64\Debug\POO_P.vcxproj.GenerateResource.cache
 D:\proiect_POO\POO_P_restanta-adrian\POO_P\POO_P\x64\Debug\POOP.Save_New_File.resources
+C:\Users\UNKNOWN\Downloads\Compressed\POO_P_restanta-main\POO_P_restanta-main\POO_P\POO_P\x64\Debug\POO_P.vcxproj.AssemblyReference.cache
+C:\Users\UNKNOWN\Downloads\Compressed\POO_P_restanta-main\POO_P_restanta-main\POO_P\POO_P\x64\Debug\POOP.EditFile.resources
+C:\Users\UNKNOWN\Downloads\Compressed\POO_P_restanta-main\POO_P_restanta-main\POO_P\POO_P\x64\Debug\POOP.Main.resources
+C:\Users\UNKNOWN\Downloads\Compressed\POO_P_restanta-main\POO_P_restanta-main\POO_P\POO_P\x64\Debug\POOP.Register.resources
+C:\Users\UNKNOWN\Downloads\Compressed\POO_P_restanta-main\POO_P_restanta-main\POO_P\POO_P\x64\Debug\POOP.Save_New_File.resources
+C:\Users\UNKNOWN\Downloads\Compressed\POO_P_restanta-main\POO_P_restanta-main\POO_P\POO_P\x64\Debug\POOP.ShareForm.resources
+C:\Users\UNKNOWN\Downloads\Compressed\POO_P_restanta-main\POO_P_restanta-main\POO_P\POO_P\x64\Debug\POOP.UserConnectInterface.resources
+C:\Users\UNKNOWN\Downloads\Compressed\POO_P_restanta-main\POO_P_restanta-main\POO_P\POO_P\x64\Debug\POO_P.vcxproj.GenerateResource.cache
+D:\proiect_POO\POO_P_restanta-adrian\POO_P\POO_P\x64\Debug\POO_P.vcxproj.Up2Date

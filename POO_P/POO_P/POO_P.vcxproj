@@ -127,6 +127,9 @@
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DeleteFileInfoForm.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
     <ClInclude Include="EditFile.h">
       <FileType>CppForm</FileType>
     </ClInclude>
