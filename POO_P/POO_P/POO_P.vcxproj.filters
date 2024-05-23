@@ -41,5 +41,11 @@
     <ClInclude Include="ShareForm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Save_New_File.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DeleteFileInfoForm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

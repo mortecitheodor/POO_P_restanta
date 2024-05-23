@@ -12,7 +12,7 @@ using namespace System::Text;
 using namespace System::Windows::Forms;
 using namespace System::Runtime::InteropServices;
 #pragma comment(lib, "ws2_32.lib")
-#define DEFAULT_PORT "27015"
+#define DEFAULT_PORT "27018"
 
 [STAThread]
 int main(array <String^>^ args) {
@@ -21,7 +21,7 @@ int main(array <String^>^ args) {
     addrinfo* result = nullptr;
     addrinfo* ptr = nullptr;
     addrinfo hints{};
-    const char* sendbuf = "this is a test";
+    const char* sendbuf = "test_message";
     char recvbuf[DEFAULT_BUFLEN];
     int iResult;
     int recvbuflen = DEFAULT_BUFLEN;
@@ -55,14 +55,19 @@ int main(array <String^>^ args) {
 
     // Attempt to connect to an address until one succeeds
     for (ptr = result; ptr != nullptr; ptr = ptr->ai_next) {
-
-        // Create a SOCKET for connecting to the server
         ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
         if (ConnectSocket == INVALID_SOCKET) {
             Console::WriteLine("socket failed with error: {0}", WSAGetLastError());
             WSACleanup();
             return 1;
         }
+        else {
+            Console::WriteLine("Socket created successfully.");
+            Console::WriteLine("Family: {0}", ptr->ai_family);
+            Console::WriteLine("Socket type: {0}", ptr->ai_socktype);
+            Console::WriteLine("Protocol: {0}", ptr->ai_protocol);
+        }
+
 
         // Connect to the server
         iResult = connect(ConnectSocket, ptr->ai_addr, static_cast<int>(ptr->ai_addrlen));

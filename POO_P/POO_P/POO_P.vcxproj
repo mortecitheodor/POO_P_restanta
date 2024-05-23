@@ -127,6 +127,9 @@
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DeleteFileInfoForm.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
     <ClInclude Include="EditFile.h">
       <FileType>CppForm</FileType>
     </ClInclude>
@@ -137,6 +140,9 @@
       <FileType>CppForm</FileType>
     </ClInclude>
     <ClInclude Include="Register.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
+    <ClInclude Include="Save_New_File.h">
       <FileType>CppForm</FileType>
     </ClInclude>
     <ClInclude Include="ShareForm.h">
@@ -156,6 +162,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Register.resx">
       <DependentUpon>Register.h</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Save_New_File.resx">
+      <DependentUpon>Save_New_File.h</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ShareForm.resx">
       <DependentUpon>ShareForm.h</DependentUpon>

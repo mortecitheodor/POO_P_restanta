@@ -71,7 +71,6 @@ namespace POOP {
 		/// </summary>
 		void InitializeComponent(void)
 		{
-			this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &Register::Register_FormClosing);
 			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(Register::typeid));
 			this->buttonBack = (gcnew System::Windows::Forms::Button());
 			this->buttonConfirm = (gcnew System::Windows::Forms::Button());
@@ -94,7 +93,7 @@ namespace POOP {
 			this->buttonBack->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->buttonBack->Font = (gcnew System::Drawing::Font(L"Segoe UI", 14.25F));
 			this->buttonBack->ForeColor = System::Drawing::Color::IndianRed;
-			this->buttonBack->Location = System::Drawing::Point(378, 330);
+			this->buttonBack->Location = System::Drawing::Point(540, 395);
 			this->buttonBack->Name = L"buttonBack";
 			this->buttonBack->Size = System::Drawing::Size(153, 55);
 			this->buttonBack->TabIndex = 19;
@@ -109,7 +108,7 @@ namespace POOP {
 			this->buttonConfirm->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->buttonConfirm->Font = (gcnew System::Drawing::Font(L"Segoe UI", 14.25F));
 			this->buttonConfirm->ForeColor = System::Drawing::Color::White;
-			this->buttonConfirm->Location = System::Drawing::Point(193, 330);
+			this->buttonConfirm->Location = System::Drawing::Point(355, 395);
 			this->buttonConfirm->Name = L"buttonConfirm";
 			this->buttonConfirm->Size = System::Drawing::Size(153, 55);
 			this->buttonConfirm->TabIndex = 18;
@@ -124,7 +123,7 @@ namespace POOP {
 				static_cast<System::Int32>(static_cast<System::Byte>(51)));
 			this->textBoxCPassword->BorderStyle = System::Windows::Forms::BorderStyle::None;
 			this->textBoxCPassword->ForeColor = System::Drawing::Color::White;
-			this->textBoxCPassword->Location = System::Drawing::Point(193, 269);
+			this->textBoxCPassword->Location = System::Drawing::Point(355, 334);
 			this->textBoxCPassword->Name = L"textBoxCPassword";
 			this->textBoxCPassword->PasswordChar = '*';
 			this->textBoxCPassword->Size = System::Drawing::Size(371, 16);
@@ -137,7 +136,7 @@ namespace POOP {
 				static_cast<System::Int32>(static_cast<System::Byte>(51)));
 			this->textBoxPassword->BorderStyle = System::Windows::Forms::BorderStyle::None;
 			this->textBoxPassword->ForeColor = System::Drawing::Color::White;
-			this->textBoxPassword->Location = System::Drawing::Point(193, 214);
+			this->textBoxPassword->Location = System::Drawing::Point(355, 279);
 			this->textBoxPassword->Name = L"textBoxPassword";
 			this->textBoxPassword->PasswordChar = '*';
 			this->textBoxPassword->Size = System::Drawing::Size(371, 16);
@@ -150,7 +149,7 @@ namespace POOP {
 				static_cast<System::Int32>(static_cast<System::Byte>(51)));
 			this->textBoxEmail->BorderStyle = System::Windows::Forms::BorderStyle::None;
 			this->textBoxEmail->ForeColor = System::Drawing::Color::White;
-			this->textBoxEmail->Location = System::Drawing::Point(193, 174);
+			this->textBoxEmail->Location = System::Drawing::Point(355, 239);
 			this->textBoxEmail->Name = L"textBoxEmail";
 			this->textBoxEmail->Size = System::Drawing::Size(371, 16);
 			this->textBoxEmail->TabIndex = 16;
@@ -162,7 +161,7 @@ namespace POOP {
 				static_cast<System::Int32>(static_cast<System::Byte>(51)));
 			this->textBoxName->BorderStyle = System::Windows::Forms::BorderStyle::None;
 			this->textBoxName->ForeColor = System::Drawing::Color::White;
-			this->textBoxName->Location = System::Drawing::Point(193, 119);
+			this->textBoxName->Location = System::Drawing::Point(355, 184);
 			this->textBoxName->Name = L"textBoxName";
 			this->textBoxName->Size = System::Drawing::Size(371, 16);
 			this->textBoxName->TabIndex = 17;
@@ -172,7 +171,7 @@ namespace POOP {
 			this->labelCPassword->Anchor = System::Windows::Forms::AnchorStyles::None;
 			this->labelCPassword->AutoSize = true;
 			this->labelCPassword->BackColor = System::Drawing::Color::Transparent;
-			this->labelCPassword->Location = System::Drawing::Point(37, 269);
+			this->labelCPassword->Location = System::Drawing::Point(199, 334);
 			this->labelCPassword->Name = L"labelCPassword";
 			this->labelCPassword->Size = System::Drawing::Size(117, 15);
 			this->labelCPassword->TabIndex = 6;
@@ -183,7 +182,7 @@ namespace POOP {
 			this->labelPassword->Anchor = System::Windows::Forms::AnchorStyles::None;
 			this->labelPassword->AutoSize = true;
 			this->labelPassword->BackColor = System::Drawing::Color::Transparent;
-			this->labelPassword->Location = System::Drawing::Point(84, 217);
+			this->labelPassword->Location = System::Drawing::Point(246, 282);
 			this->labelPassword->Name = L"labelPassword";
 			this->labelPassword->Size = System::Drawing::Size(70, 15);
 			this->labelPassword->TabIndex = 7;
@@ -194,7 +193,7 @@ namespace POOP {
 			this->labelEmail->Anchor = System::Windows::Forms::AnchorStyles::None;
 			this->labelEmail->AutoSize = true;
 			this->labelEmail->BackColor = System::Drawing::Color::Transparent;
-			this->labelEmail->Location = System::Drawing::Point(102, 174);
+			this->labelEmail->Location = System::Drawing::Point(264, 239);
 			this->labelEmail->Name = L"labelEmail";
 			this->labelEmail->Size = System::Drawing::Size(49, 15);
 			this->labelEmail->TabIndex = 10;
@@ -205,7 +204,7 @@ namespace POOP {
 			this->labelName->Anchor = System::Windows::Forms::AnchorStyles::None;
 			this->labelName->AutoSize = true;
 			this->labelName->BackColor = System::Drawing::Color::Transparent;
-			this->labelName->Location = System::Drawing::Point(102, 119);
+			this->labelName->Location = System::Drawing::Point(264, 184);
 			this->labelName->Name = L"labelName";
 			this->labelName->Size = System::Drawing::Size(52, 15);
 			this->labelName->TabIndex = 11;
@@ -222,7 +221,7 @@ namespace POOP {
 			this->label1->Location = System::Drawing::Point(237, 61);
 			this->label1->Margin = System::Windows::Forms::Padding(7, 0, 7, 0);
 			this->label1->Name = L"label1";
-			this->label1->Size = System::Drawing::Size(281, 55);
+			this->label1->Size = System::Drawing::Size(605, 184);
 			this->label1->TabIndex = 5;
 			this->label1->Text = L"Register";
 			this->label1->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
@@ -233,7 +232,7 @@ namespace POOP {
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"$this.BackgroundImage")));
 			this->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
-			this->ClientSize = System::Drawing::Size(678, 423);
+			this->ClientSize = System::Drawing::Size(1002, 552);
 			this->Controls->Add(this->buttonBack);
 			this->Controls->Add(this->buttonConfirm);
 			this->Controls->Add(this->textBoxCPassword);
@@ -251,6 +250,7 @@ namespace POOP {
 			this->Margin = System::Windows::Forms::Padding(4);
 			this->Name = L"Register";
 			this->Text = L"Register";
+			this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &Register::Register_FormClosing);
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -286,8 +286,6 @@ namespace POOP {
 
 			//aici trimit catre server email si password
 			Json::Value jsonData;
-			//clientSocket->Connect(serverEndPoint);
-
 			jsonData["operatiune"] = msclr::interop::marshal_as<std::string>(operatiune);
 			jsonData["name"] = msclr::interop::marshal_as<std::string>(name);
 			jsonData["mail"] = msclr::interop::marshal_as<std::string>(email);
