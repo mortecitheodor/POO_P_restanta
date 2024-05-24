@@ -16,3 +16,7 @@ Class User: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     System.String name : Public
     System.String email : Public
     System.String password : Public
+Class DatabaseConfig: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Fields:
+    System.String ConnString : Public, Static, InitOnly

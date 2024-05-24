@@ -22,6 +22,10 @@
 
 int nrClienti = 0;
 
+public ref class DatabaseConfig {
+public:
+    static initonly String^ ConnString = "Data Source=DESKTOP-OIGQPEQ;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+};
 
 using namespace System::Data;
 using namespace System::Threading;
@@ -48,10 +52,8 @@ int Verify(User^% user, std::string mail, std::string password);
 std::vector<std::string> GetUserFilesFromDatabase(int userId) {
     std::vector<std::string> fileList;
 
-    // Initialize the connection string
-    String^ connString = "Data Source=DESKTOP-OIGQPEQ;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
     // Create a SqlConnection using the connection string
-    SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+    SqlConnection^ sqlConn = gcnew SqlConnection(DatabaseConfig::ConnString);
 
     try {
         // Open the connection
@@ -137,9 +139,9 @@ std::vector<std::string> GetUserFilesFromDatabase(const std::string& userEmail) 
     std::vector<std::string> fileList;
 
     // Initialize the connection string
-    String^ connString = "Data Source=DESKTOP-OIGQPEQ;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+    //String^ connString = "Data Source=DESKTOP-5AS8UAM\\SQLEXPRESS;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
     // Create a SqlConnection using the connection string
-    SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+    SqlConnection^ sqlConn = gcnew SqlConnection(DatabaseConfig::ConnString);
 
     try {
         // Open the connection
@@ -264,7 +266,7 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
             return 0;
         }
         std::string operatiune = jsonData["operatiune"].asString();
-        std::cout<<operatiune;
+        std::cout << operatiune;
         std::string email;
         std::string password;
         std::string file;
@@ -354,8 +356,8 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
             std::string name = jsonData["name"].asString();
             System::String^ nume = gcnew System::String(name.c_str());
 
-            String^ connString = "Data Source=DESKTOP-OIGQPEQ;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
-            SqlConnection sqlConn(connString);
+            //String^ connString = "Data Source=DESKTOP-5AS8UAM\\SQLEXPRESS;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+            SqlConnection sqlConn(DatabaseConfig::ConnString);
             sqlConn.Open();
 
             String^ checkEmailQuery = "SELECT COUNT(*) FROM dbo.[users] WHERE email = @email";
@@ -413,13 +415,13 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
             }
             verificare = 0;
             continue;
-        } 
+        }
         else if (operatiune == "share") {
             email = jsonData["email"].asString();
             std::cout << std::endl;
             std::cout << "Email pentru partajare: " << email << std::endl;
-            String^ connString = "Data Source=DESKTOP-OIGQPEQ;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
-            SqlConnection sqlConn(gcnew String(connString));
+            //String^ connString = "Data Source=DESKTOP-5AS8UAM\\SQLEXPRESS;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+            SqlConnection sqlConn(gcnew String(DatabaseConfig::ConnString));
             sqlConn.Open();
             String^ query = "SELECT COUNT(*) FROM dbo.[users] WHERE email = @mail";
             SqlCommand^ command = gcnew SqlCommand(query, % sqlConn);
@@ -436,13 +438,13 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
             array<Byte>^ responseBytes = Encoding::ASCII->GetBytes(msclr::interop::marshal_as<String^>(responseString));
             pin_ptr<Byte> pinnedData = &responseBytes[0];
             send(AcceptSocket, reinterpret_cast<char*>(pinnedData), responseBytes->Length, 0);
-            
+
         }
         else if (operatiune == "delete_file") {
             std::string filename = jsonData["filename"].asString();
             std::string userEmail = jsonData["email"].asString();
-            String^ connString = "Data Source=DESKTOP-OIGQPEQ;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
-            SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+            //String^ connString = "Data Source=DESKTOP-5AS8UAM\\SQLEXPRESS;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+            SqlConnection^ sqlConn = gcnew SqlConnection(DatabaseConfig::ConnString);
             int deleteResult = 0;
 
             try {
@@ -463,12 +465,12 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
                     // User is the owner, proceed to delete the file and related shares
                     std::cout << "Utilizatorul este proprietarul fisierului. Se procedeaza la stergerea fisierului si a inregistrarilor partajate." << std::endl;
                     std::string full_path = files_location + "\\" + filename + ".rtf";
-                    
+
                     if (std::remove(full_path.c_str()) == 0) {
                         std::cout << "Fisierul a fost sters cu succes de pe server." << std::endl;
                     }
                     else {
-                        std::cerr << "Fisierul nu a fost gasit sau nu a putut fi sters." << std::endl; 
+                        std::cerr << "Fisierul nu a fost gasit sau nu a putut fi sters." << std::endl;
                     }
 
                     String^ sqlQueryDeleteShares = "DELETE FROM FileShare WHERE file_id = (SELECT id FROM Files WHERE filename = @filename)";
@@ -499,10 +501,10 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
         else if (operatiune == "requested_file") {
 
             file = jsonData["nume_fisier"].asString();
-  
+
             // Conectează-te la baza de date și caută calea completă a fișierului
-            String^ connString = "Data Source=DESKTOP-OIGQPEQ;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
-            SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+            //String^ connString = "Data Source=DESKTOP-5AS8UAM\\SQLEXPRESS;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+            SqlConnection^ sqlConn = gcnew SqlConnection(DatabaseConfig::ConnString);
 
             String^ filepath;
             try {
@@ -574,10 +576,10 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
 
             // Check if the data was sent successfully
             if (bytesSentResponse == SOCKET_ERROR) {
-                std::cerr <<std::endl<< "Error sending file content." << std::endl;
+                std::cerr << std::endl << "Error sending file content." << std::endl;
             }
             else {
-                std::cout <<std::endl<< "File content sent successfully." << std::endl;
+                std::cout << std::endl << "File content sent successfully." << std::endl;
             }
 
         }
@@ -587,8 +589,8 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
             owner_email = jsonData["owner_email"].asString();
             shared_email = jsonData["shared_email"].asString();
             std::cout << std::endl << "Operatiune: " << operatiune << std::endl << "Owner's Email: " << owner_email << std::endl << "Shared file: " << file << std::endl << "Share with: " << shared_email << std::endl;
-            String^ connString = "Data Source=DESKTOP-OIGQPEQ;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
-            SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+            //String^ connString = "Data Source=DESKTOP-5AS8UAM\\SQLEXPRESS;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+            SqlConnection^ sqlConn = gcnew SqlConnection(DatabaseConfig::ConnString);
 
             try {
                 sqlConn->Open();
@@ -668,8 +670,8 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
             String^ fileStr = gcnew String(file.c_str());
 
             // Connection string
-            String^ connString = "Data Source=DESKTOP-OIGQPEQ;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
-            SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+            //String^ connString = "Data Source=DESKTOP-5AS8UAM\\SQLEXPRESS;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+            SqlConnection^ sqlConn = gcnew SqlConnection(DatabaseConfig::ConnString);
 
             try {
                 sqlConn->Open();
@@ -682,10 +684,10 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
                 int count = (int)commandFile->ExecuteScalar();
 
                 if (count > 0) {
-                    std::cout <<std::endl<< "Fisierul exista in baza de date." << std::endl;
+                    std::cout << std::endl << "Fisierul exista in baza de date." << std::endl;
                 }
                 else {
-                    std::cout <<std::endl<< "Fisierul NU exista in baza de date." << std::endl;
+                    std::cout << std::endl << "Fisierul NU exista in baza de date." << std::endl;
                 }
                 int response = (count > 0) ? 0 : 1;
 
@@ -698,7 +700,7 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
                 }
             }
 
-            
+
         }
         else if (operatiune == "saving_new_file") {
 
@@ -713,8 +715,8 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
             String^ fileLocationStr = gcnew String(files_location.c_str());
 
             // Connection string
-            String^ connString = "Data Source=DESKTOP-OIGQPEQ;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
-            SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+            //String^ connString = "Data Source=DESKTOP-5AS8UAM\\SQLEXPRESS;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+            SqlConnection^ sqlConn = gcnew SqlConnection(DatabaseConfig::ConnString);
 
             try {
                 sqlConn->Open();
@@ -735,10 +737,10 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
 
                 commandInsertFile->ExecuteNonQuery();
 
-                std::cout <<std::endl<< "Datele au fost inserate cu succes in tabel" << std::endl;
+                std::cout << std::endl << "Datele au fost inserate cu succes in tabel" << std::endl;
             }
             catch (Exception^ ex) {
-                std::cout << "A aparut o eroare: " <<std::endl;
+                std::cout << "A aparut o eroare: " << std::endl;
             }
             finally {
                 if (sqlConn->State == ConnectionState::Open) {
@@ -792,10 +794,10 @@ DWORD WINAPI ProcessClient(LPVOID lpParameter)
             else {
                 Console::WriteLine("File list sent successfully.");
             }
-  
+
         }
     } while (1);
-        
+
     auto it = std::find_if(Clienti_Conectati.begin(), Clienti_Conectati.end(),
         [AcceptSocket](const SocketEmailPair& pair) {
             return pair.first == AcceptSocket;
@@ -873,7 +875,7 @@ int __cdecl main(void)
 
     //No longer need the listening socket
     closesocket(ListenSocket);
-    
+
     // shutdown the connection since we're done
     shutdown(AcceptSocket, SD_SEND);
 
@@ -887,8 +889,8 @@ int Verify(User^% user, std::string mail, std::string password) {
         return -1;
     }
     try {
-        String^ connString = "Data Source=DESKTOP-OIGQPEQ;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
-        SqlConnection sqlConn(gcnew String(connString));
+        //String^ connString = "Data Source=DESKTOP-5AS8UAM\\SQLEXPRESS;Initial Catalog=pooP;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+        SqlConnection sqlConn(gcnew String(DatabaseConfig::ConnString));
         sqlConn.Open();
 
         // Retrieve the user from the database for the given email

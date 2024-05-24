@@ -1,11 +1,11 @@
 ﻿  Server.cpp
-D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(123,26): warning C4101: 'ex': unreferenced local variable
-D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(127,23): warning C4101: 'ex': unreferenced local variable
-D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(657,79): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(659,30): warning C4566: character represented by universal-character-name '\u0103' cannot be represented in the current code page (1252)
-D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(234,9): warning C4101: 'bytesSent': unreferenced local variable
-D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(740,31): warning C4101: 'ex': unreferenced local variable
-D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(823,10): warning C4101: 'recvbuf': unreferenced local variable
-D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(822,9): warning C4101: 'iSendResult': unreferenced local variable
+D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(125,26): warning C4101: 'ex': unreferenced local variable
+D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(129,23): warning C4101: 'ex': unreferenced local variable
+D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(659,79): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(661,30): warning C4566: character represented by universal-character-name '\u0103' cannot be represented in the current code page (1252)
+D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(236,9): warning C4101: 'bytesSent': unreferenced local variable
+D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(742,31): warning C4101: 'ex': unreferenced local variable
+D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(825,10): warning C4101: 'recvbuf': unreferenced local variable
+D:\proiect_POO\POO_P_restanta-adrian\Server\Server\Server.cpp(824,9): warning C4101: 'iSendResult': unreferenced local variable
   Server.obj : MSIL module encountered; incremental linking is disabled for MSIL; performing full link
   Server.vcxproj -> D:\proiect_POO\POO_P_restanta-adrian\Server\x64\Debug\Server.exe
