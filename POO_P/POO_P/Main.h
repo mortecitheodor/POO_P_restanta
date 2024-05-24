@@ -188,6 +188,93 @@ namespace POOP {
 						Console::WriteLine("File Content received SUCCESSFULLY from the server ");
 						POOP::EditFile^ editf = gcnew POOP::EditFile(this->user, connectSocket, fileName, fileContent);
 						editf->ShowDialog();
+						// Crearea obiectului JSON pentru cerere
+						Json::Value requestJson;
+						requestJson["operatiune"] = "request_list";
+						String^ userEmail = this->user->email;
+						std::string email_to_send = msclr::interop::marshal_as<std::string>(userEmail);
+						requestJson["email"] = email_to_send;
+
+						// Convertirea obiectului JSON într-un string
+						std::string requestString = requestJson.toStyledString();
+
+						// Convertirea string-ului în octe?i pentru trimitere
+						array<Byte>^ requestBytes = Encoding::ASCII->GetBytes(msclr::interop::marshal_as<String^>(requestString));
+						pin_ptr<unsigned char> pinnedRequestData = &requestBytes[0];
+						int requestDataLength = requestBytes->Length;
+
+						// Trimiterea cererii c?tre server
+						int bytesSent = send(connectSocket, reinterpret_cast<char*>(pinnedRequestData), requestDataLength, 0);
+						if (bytesSent == SOCKET_ERROR) {
+							// Gestionarea erorilor la trimitere
+							Console::WriteLine("Eroare la trimiterea cererii: " + WSAGetLastError());
+						}
+						else {
+							Console::WriteLine("Cererea a fost trimis? cu succes.");
+						}
+						const int bufferSize = 4096;
+						array<Byte>^ buffer = gcnew array<Byte>(bufferSize);
+
+						// Primirea datelor de la server
+						pin_ptr<Byte> pinnedBuffer = &buffer[0];
+						int bytesReceived = recv(connectSocket, reinterpret_cast<char*>(pinnedBuffer), bufferSize, 0);
+
+						linkPanel->Controls->Clear();
+
+						if (bytesReceived > 0)
+						{
+							String^ responseString = Encoding::ASCII->GetString(buffer, 0, bytesReceived);
+							std::string unmanagedResponseString = msclr::interop::marshal_as<std::string>(responseString);
+							Json::Value receivedJson;
+							Json::CharReaderBuilder builder;
+							JSONCPP_STRING errs;
+							const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+							if (reader->parse(unmanagedResponseString.c_str(), unmanagedResponseString.c_str() + unmanagedResponseString.length(), &receivedJson, &errs))
+							{
+								Json::Value fileList = receivedJson["fisiere"];
+								if (fileList.size() > 0)
+								{
+									int yOffset = 0;
+									for (Json::Value::ArrayIndex i = 0; i < fileList.size(); ++i)
+									{
+										std::string fileName = fileList[i].asString();
+										LinkLabel^ link = gcnew LinkLabel();
+										link->Text = gcnew String(fileName.c_str());
+										link->Location = Point(0, yOffset); // Set the position
+										link->AutoSize = true;
+										link->Font = gcnew System::Drawing::Font("Aries", 14, FontStyle::Bold); // Set font size and style
+										link->LinkColor = Color::Yellow;
+										link->LinkBehavior = LinkBehavior::NeverUnderline;
+										link->LinkClicked += gcnew LinkLabelLinkClickedEventHandler(this, &Main::linkLabel_LinkClicked);
+										linkPanel->Controls->Add(link);
+										yOffset += link->Height + 5; // Adjust for next link
+									}
+								}
+								else
+								{
+									LinkLabel^ messageLink = gcnew LinkLabel();
+									messageLink->LinkColor = Color::White;
+									messageLink->Font = gcnew System::Drawing::Font(messageLink->Font->FontFamily, 12, FontStyle::Regular);
+									messageLink->Text = "Inca nu exista fisiere.";
+									messageLink->AutoSize = true;
+									messageLink->LinkColor = Color::Yellow;
+									messageLink->LinkBehavior = LinkBehavior::NeverUnderline;
+									linkPanel->Controls->Add(messageLink);
+								}
+							}
+							else
+							{
+								MessageBox::Show("Eroare la parsarea datelor JSON.", "Eroare JSON", MessageBoxButtons::OK);
+							}
+						}
+						else if (bytesReceived == 0)
+						{
+							MessageBox::Show("Conexiunea a fost inchisa de server.", "Conexiune Inchisa", MessageBoxButtons::OK);
+						}
+						else
+						{
+							MessageBox::Show("recv a esuat cu eroarea: " + Convert::ToString(WSAGetLastError()), "Eroare de Retea", MessageBoxButtons::OK);
+						}
 					}
 					else
 					{
